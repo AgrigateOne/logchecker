@@ -1,0 +1,12 @@
+dummy_number:
+  db_sequence_name: doc_seqs_dummy_number
+  data_type: :integer
+  table: some_tables
+  column: dummy_number
+dummy_invoice:
+  db_sequence_name: doc_seqs_inv
+  data_type: :string
+  prefix: INV
+  digit_length: 7
+  table: invoices
+  column: invoice_ref

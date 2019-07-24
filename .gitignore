@@ -1,0 +1,50 @@
+*.gem
+/.config
+/coverage/
+/hold/
+/InstalledFiles
+/log/
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+*.backup
+*.old
+.sass-cache/
+lib/applets/.sass-cache/
+public/assets/*.*
+public/downloads/jasper/*.*
+public/js/ag-enterprise-activation.js
+
+# Used by dotenv library to load environment variables.
+.env.local
+
+## Documentation cache and generated files:
+/.yardoc/
+/_yardoc/
+/doc/
+/rdoc/
+
+## Environment normalization:
+/.bundle/
+/vendor/bundle
+/lib/bundler/man/
+
+## Rubymine
+.idea/
+.rake_tasks~
+
+## Vim
+tags
+.srclist
+.smartgf*
+
+# Assets plugin metadata file
+prestyle.css
+
+# Client-specific config.
+config/mail_settings.rb
+config/dataminer_connections.yml
+prepared_reports/*.yml

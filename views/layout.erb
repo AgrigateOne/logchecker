@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_metatag %>
+
+    <title><%= ENV['APP_CAPTION'] %></title>
+
+    <!-- FAVICON start -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <!-- FAVICON end -->
+
+    <link rel="stylesheet" href="/css/jackbox.css">
+    <link rel="stylesheet" href="/css/tachyons.min.css">
+    <link rel="stylesheet" href="/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="/css/jquery.contextMenu.min.css">
+    <link rel="stylesheet" href="/css/menu.css">
+    <link rel="stylesheet" href="/css/skin.css">
+    <link rel="stylesheet" href="/css/choices.min.css">
+    <link rel="stylesheet" href="/css/multi.min.css">
+    <%= assets(:css) %>
+
+    <%= content_for :late_head %>
+  </head>
+  <body class="site" data-utf-8-ensurer="О">
+  <header>
+    <div class="system-name">
+      <a href="/" class="dib f5 f4-ns fw6 mt0 mb2 link mid-gray" title="Home">
+        <%= ENV['APP_CAPTION'] %>
+        <div class="dib">
+          <small class="nowrap f6 mt2 mt3-ns pr2 black-70 fw2">v<%= ENV['VERSION'] %></small>
+        </div>
+      </a>
+</div>
+      <div id="notification-area">
+        <% if current_user %>
+          <input id="menuSearch" type="search" placeholder="Search menu" />
+          <ul id="menuSearchResults">
+          </ul>
+          <!-- [current resource] -->
+          <% if session[:act_as_user_id] %>
+            <span class="ml2 mr2 f6 link mb2 br2 ph3 pv2 dib white bg-silver"><%= actor_user.user_name %> acting as <strong><%= current_user.user_name %></strong></span>
+          <% else %>
+            <a href="/development/masterfiles/users/<%= current_user.id %>/details" class="ml2 mr2 f6 link dim mb2 br2 ph3 pv2 dib white bg-silver" data-popup-dialog= "true"><%= current_user.user_name %></a>
+        <% end %>
+          <a href="/logout" id="logout" class="f6 fw6 hover-blue link black-70 ml3 mr2 mr3-m mr4-l dib" title="Logout">logout</a>
+        <% end %>
+      </div>
+    <%#= partial 'page_banner' %>
+    <%= partial 'menu' %>
+</header>
+    <div id="container" class="container">
+      <% if @documentation_page %>
+        <form action="/search_developer_documentation" class="absolute">
+          <input id="search_term" type="search" name="search_term" placeholder="Search documentation" />
+        </form>
+      <% end %>
+      <%= yield %>
+    </div>
+
+    <div class="dialog" aria-hidden="true" id="crossbeams-popup-dialog-level1">
+      <div class="dialog-overlay" tabindex="-1"></div> <!-- data-a11y-dialog-hide></div> -->
+      <div id="dialog-error-level1" class="brown bg-washed-red ba b--light-red absolute top-1 left-1 pa3" style="display:none;z-index:60;min-width:20em;"></div>
+      <div class="dialog-content" aria-labelledby="dialogTitleLevel1" role="dialog">
+        <div role="document">
+          <button data-a11y-dialog-hide class="dialog-close" aria-label="Close this dialog window">&times;</button>
+          <h1 id="dialogTitleLevel1">Dialog title</h1>
+          <div id="dialog-content-level1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog" aria-hidden="true" id="crossbeams-popup-dialog-level2">
+      <div class="dialog-overlay" tabindex="-1"></div> <!-- data-a11y-dialog-hide></div> -->
+      <div id="dialog-error-level2" class="brown bg-washed-red ba b--light-red absolute top-1 left-1 pa3" style="display:none;z-index:60;min-width:20em;"></div>
+      <div class="dialog-content" aria-labelledby="dialogTitleLevel2" role="dialog">
+        <div role="document">
+          <button data-a11y-dialog-hide class="dialog-close" aria-label="Close this dialog window">&times;</button>
+          <h1 id="dialogTitleLevel2">Dialog title</h1>
+          <div id="dialog-content-level2"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footness">
+      <p>NOSOFT 2017
+        <% if ENV['RACK_ENV'] == 'development' %>
+          <% asset_type = assets_paths(:css).any? { |p| p.include?('scss') } ? :bug : :show %>
+          ASSETS: <%= Crossbeams::Layout::Icon.new(asset_type).render %>
+        <% end %>
+    </footer>
+
+    <script src="/js/lodash.js"></script>
+    <script src="/js/ag-grid-enterprise.min.js?seq=1"></script>
+    <script src="/js/ag-enterprise-activation.js?seq=1"></script>
+
+    <script src="/js/jackbox.min.js"></script>
+    <script src="/js/jquery-3.2.1.min.js"></script>
+    <script src="/js/jquery.ui.position.min.js"></script>
+    <script src="/js/jquery.contextMenu.min.js"></script>
+    <script src="/js/sweetalert2.min.js"></script>
+    <script src="/js/Sortable.min.js"></script>
+    <script src="/js/crossbeams-local-storage.js"></script>
+    <script src="/js/crossbeams-utils.js?seq=11"></script>
+    <script src="/js/crossbeams-layout.js?seq=10"></script>
+    <script src="/js/crossbeams-grid-loader.js?seq=17"></script>
+    <script src="/js/crossbeams-data-miner-params.js?seq=1"></script>
+    <script src="/js/crossbeams-menu-builder.js?seq=1"></script>
+    <script src="/js/choices.min.js"></script>
+    <script src="/js/multi.min.js"></script>
+    <script src="/js/a11y-dialog-cbeam.js"></script>
+    <script>
+      let crossbeamsDialogLevel1;
+      let crossbeamsDialogLevel2;
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const dialogEl1 = document.getElementById('crossbeams-popup-dialog-level1');
+        crossbeamsDialogLevel1 = new window.A11yDialog(dialogEl1);
+        const dialogEl2 = document.getElementById('crossbeams-popup-dialog-level2');
+        crossbeamsDialogLevel2 = new window.A11yDialog(dialogEl2);
+
+        const sortable = Array.from(document.getElementsByTagName('input')).filter(a => a.dataset && a.dataset.sortablePrefix);
+        sortable.forEach((elem) => crossbeamsUtils.makeListSortable(elem.dataset.sortablePrefix, elem.dataset.sortableGroup))
+
+      });
+
+      // Build the menu.
+      crossbeamsMenuBuilder.buildMenu(<%= menu_items(self.class.name) %>);
+
+      Jackbox.init();
+      <% if flash[:notice] %>
+        Jackbox.success('<%= flash[:notice].tr("'", "`") %>');
+      <% end %>
+      <% if flash[:error] %>
+        Jackbox.error('<%= flash[:error].tr("'", "`") %>', { time: 20 });
+      <% end %>
+
+    </script>
+    <script src="/js/crossbeams-menu-handler.js"></script>
+    <%= content_for :late_javascript %>
+  </body>
+</html>

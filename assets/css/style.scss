@@ -1,0 +1,66 @@
+/*
+SELECTIONS THAT OVERRIDE Tachyons normalize FROM:
+
+normalize.css v^3.0 | MIT License | git.io/normalize
+Copyright (c) Nicolas Gallagher and Jonathan Neal
+*/
+/*! normalize.css v3.0.2 | MIT License | git.io/normalize */
+
+/**
+ * 1. Set default font family to sans-serif.
+ * 2. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+  color: #000000c9;
+}
+/* Forms
+   ========================================================================== */
+
+/**
+ * Known limitation: by default, Chrome and Safari on OS X allow very limited
+ * styling of `select`, unless a `border` property is set.
+ */
+
+/**
+ * 1. Correct color not being inherited.
+ *    Known issue: affects color of disabled elements.
+ * 2. Correct font properties not being inherited.
+ * 3. Address margins set differently in Firefox 4+, Safari, and Chrome.
+ */
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit; /* 1 */
+  font: inherit; /* 2 */
+  margin: 0; /* 3 */
+}
+
+/* ================== END OF NORMALIZE SELECTIONS ======================= */
+
+.page-header { color: green }
+
+header {
+  padding: 0.1em;
+}
+.Content {
+  margin-top: 140px;
+}
+.system-name {
+  display: inline-block;
+}
+#notification-area {
+  display: inline-block;
+  position: absolute;
+  right: 0px;
+  padding: 0 1em;
+}
+/* #import "crossbeams-layout.css.scss", "crossbeams-menu.css.scss" */
+@import "crossbeams-layout.css.scss"

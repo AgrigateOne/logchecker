@@ -1,0 +1,38 @@
+AllCops:
+  Exclude:
+    - db/**/*
+    - test/**/*
+    - tmp/**/*
+
+Documentation:
+  Enabled: false
+
+LineLength:
+  Enabled: false
+
+FrozenStringLiteralComment:
+  Enabled: false
+
+MethodLength:
+  Enabled: false
+
+Layout/ExtraSpacing:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
+    - '**/test_*.rb'
+
+Metrics/ClassLength:
+  Exclude:
+    - '**/test_*.rb'
+
+Metrics/AbcSize:
+  Exclude:
+    - '**/test_*.rb'
+
+Layout/SpaceAroundOperators:
+  AllowForAlignment: true
