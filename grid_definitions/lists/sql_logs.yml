@@ -1,0 +1,44 @@
+---
+:dataminer_definition: sql_logs
+:actions:
+- :url: "/logcheck/sql/sql_logs/$:id$"
+  :text: view
+  :icon: view-show
+  :title: View
+  :popup: true
+- :url: "/list/sql_logs_view/with_params?key=fingerprint&val=$:query_fingerprint$"
+  :text: List all matching queries
+  :icon: play
+  :title: Matching queries
+  :popup: true
+- :separator: true
+- :url: "/list/sql_logs_view/with_params?key=process&val=$:process_id$"
+  :text: List entries with the same process id
+  :icon: list
+  :title: Entries for process $:process_id$
+  :popup: true
+- :url: "/list/sql_logs_view/with_params?key=process&val=$:holding_process_id$"
+  :text: List entries of this holding process id
+  :icon: lock-closed
+  :title: Entries for holding process $:holding_process_id$
+  :popup: true
+  :hide_if_null: holding_process_id
+- :url: "/list/sql_logs_view/with_params?key=process&val=$:waiting_process_id$"
+  :text: List entries of this waiting process id
+  :icon: cheveron-right
+  :title: Entries for waiting process $:waiting_process_id$
+  :popup: true
+  :hide_if_null: waiting_process_id
+- :separator: true
+- :url: "/list/sql_logs_view/with_params?key=transaction&val=$:regular_transaction_id$"
+  :text: List entries with the same transaction id
+  :icon: code
+  :title: Entries for transaction $:regular_transaction_id$
+  :popup: true
+  :hide_if_null: regular_transaction_id
+- :url: "/list/sql_logs_view/with_params?key=transaction&val=$:holding_transaction_id$"
+  :text: List entries of this holding transaction id
+  :icon: bug
+  :title: Entries for holding transaction $:holding_transaction_id$
+  :popup: true
+  :hide_if_null: holding_transaction_id

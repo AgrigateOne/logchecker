@@ -1,0 +1,590 @@
+---
+:caption: Sql Logs
+:sql: "SELECT \"sql_logs\".\"id\", \"sql_logs\".\"action_type\", \"sql_logs\".\"command_tag\",
+  \"sql_logs\".\"process_id\", \"sql_logs\".\"start_time\", \"sql_logs\".\"time_stamp\",
+  \"sql_logs\".\"duration_in_ms\", \"sql_logs\".\"duration_in_secs\", \"sql_logs\".\"duration_in_minutes\",
+  \"sql_logs\".\"csv_row_no\", \"sql_logs\".\"log_message\", \"sql_logs\".\"holding_process_id\",
+  \"sql_logs\".\"waiting_process_id\", \"sql_logs\".\"holding_transaction_id\", \"sql_logs\".\"lock_wait_duration\",
+  \"sql_logs\".\"lock_acquired\", \"sql_logs\".\"lock_waiting\", \"sql_logs\".\"user_name\",
+  \"sql_logs\".\"database_name\", \"sql_logs\".\"host_port\", \"sql_logs\".\"session_id\",
+  \"sql_logs\".\"line_no\", \"sql_logs\".\"session_start_time\", \"sql_logs\".\"virtual_transaction_id\",
+  \"sql_logs\".\"regular_transaction_id\", \"sql_logs\".\"error_severity\", \"sql_logs\".\"sqlstate_code\",
+  \"sql_logs\".\"error_message_detail\", \"sql_logs\".\"hint\", \"sql_logs\".\"error_context\",
+  \"sql_logs\".\"pg_err_loc\", \"sql_logs\".\"application_name\", \"sql_logs\".\"query_fingerprint\"\r\n,
+  CASE WHEN holding_transaction_id IS NOT NULL THEN\r\n    'red'\r\n    WHEN regular_transaction_id
+  IS NOT NULL THEN\r\n    'green'\r\n    WHEN duration_in_minutes > 1.0 THEN\r\n    'orange'\r\n
+  \   ELSE\r\n    NULL\r\n    END AS colour_rule\r\nFROM \"sql_logs\"\r\nORDER BY
+  \"sql_logs\".\"time_stamp\", \"sql_logs\".\"id\""
+:limit: 
+:offset: 
+:external_settings: {}
+:columns:
+  id:
+    :name: id
+    :sequence_no: 1
+    :caption: Id
+    :namespaced_name: sql_logs.id
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  action_type:
+    :name: action_type
+    :sequence_no: 2
+    :caption: Action type
+    :namespaced_name: sql_logs.action_type
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  command_tag:
+    :name: command_tag
+    :sequence_no: 3
+    :caption: Command tag
+    :namespaced_name: sql_logs.command_tag
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  process_id:
+    :name: process_id
+    :sequence_no: 4
+    :caption: Process
+    :namespaced_name: sql_logs.process_id
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  start_time:
+    :name: start_time
+    :sequence_no: 5
+    :caption: Start time
+    :namespaced_name: sql_logs.start_time
+    :data_type: :datetime
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  time_stamp:
+    :name: time_stamp
+    :sequence_no: 6
+    :caption: Time stamp
+    :namespaced_name: sql_logs.time_stamp
+    :data_type: :datetime
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  duration_in_ms:
+    :name: duration_in_ms
+    :sequence_no: 7
+    :caption: Millisecs
+    :namespaced_name: sql_logs.duration_in_ms
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  duration_in_secs:
+    :name: duration_in_secs
+    :sequence_no: 8
+    :caption: Secs
+    :namespaced_name: sql_logs.duration_in_secs
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  duration_in_minutes:
+    :name: duration_in_minutes
+    :sequence_no: 9
+    :caption: Minutes
+    :namespaced_name: sql_logs.duration_in_minutes
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  csv_row_no:
+    :name: csv_row_no
+    :sequence_no: 10
+    :caption: Csv row
+    :namespaced_name: sql_logs.csv_row_no
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  log_message:
+    :name: log_message
+    :sequence_no: 11
+    :caption: Log message
+    :namespaced_name: sql_logs.log_message
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  holding_process_id:
+    :name: holding_process_id
+    :sequence_no: 12
+    :caption: Hold PID
+    :namespaced_name: sql_logs.holding_process_id
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  waiting_process_id:
+    :name: waiting_process_id
+    :sequence_no: 13
+    :caption: Wait PID
+    :namespaced_name: sql_logs.waiting_process_id
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  holding_transaction_id:
+    :name: holding_transaction_id
+    :sequence_no: 14
+    :caption: Hold transaction
+    :namespaced_name: sql_logs.holding_transaction_id
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  lock_wait_duration:
+    :name: lock_wait_duration
+    :sequence_no: 15
+    :caption: Lock wait duration
+    :namespaced_name: sql_logs.lock_wait_duration
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  lock_acquired:
+    :name: lock_acquired
+    :sequence_no: 16
+    :caption: Lock acquired
+    :namespaced_name: sql_logs.lock_acquired
+    :data_type: :boolean
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  lock_waiting:
+    :name: lock_waiting
+    :sequence_no: 17
+    :caption: Lock waiting
+    :namespaced_name: sql_logs.lock_waiting
+    :data_type: :boolean
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  user_name:
+    :name: user_name
+    :sequence_no: 18
+    :caption: User name
+    :namespaced_name: sql_logs.user_name
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  database_name:
+    :name: database_name
+    :sequence_no: 19
+    :caption: Database name
+    :namespaced_name: sql_logs.database_name
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  host_port:
+    :name: host_port
+    :sequence_no: 20
+    :caption: Host port
+    :namespaced_name: sql_logs.host_port
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  session_id:
+    :name: session_id
+    :sequence_no: 21
+    :caption: Session
+    :namespaced_name: sql_logs.session_id
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  line_no:
+    :name: line_no
+    :sequence_no: 22
+    :caption: Line no
+    :namespaced_name: sql_logs.line_no
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  session_start_time:
+    :name: session_start_time
+    :sequence_no: 23
+    :caption: Session start time
+    :namespaced_name: sql_logs.session_start_time
+    :data_type: :datetime
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  virtual_transaction_id:
+    :name: virtual_transaction_id
+    :sequence_no: 24
+    :caption: Virtual transaction
+    :namespaced_name: sql_logs.virtual_transaction_id
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  regular_transaction_id:
+    :name: regular_transaction_id
+    :sequence_no: 25
+    :caption: Regular transaction
+    :namespaced_name: sql_logs.regular_transaction_id
+    :data_type: :integer
+    :width: 100
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  error_severity:
+    :name: error_severity
+    :sequence_no: 26
+    :caption: Error severity
+    :namespaced_name: sql_logs.error_severity
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  sqlstate_code:
+    :name: sqlstate_code
+    :sequence_no: 27
+    :caption: Sqlstate code
+    :namespaced_name: sql_logs.sqlstate_code
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  error_message_detail:
+    :name: error_message_detail
+    :sequence_no: 28
+    :caption: Error message detail
+    :namespaced_name: sql_logs.error_message_detail
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  hint:
+    :name: hint
+    :sequence_no: 29
+    :caption: Hint
+    :namespaced_name: sql_logs.hint
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  error_context:
+    :name: error_context
+    :sequence_no: 30
+    :caption: Error context
+    :namespaced_name: sql_logs.error_context
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  pg_err_loc:
+    :name: pg_err_loc
+    :sequence_no: 31
+    :caption: Pg err loc
+    :namespaced_name: sql_logs.pg_err_loc
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  application_name:
+    :name: application_name
+    :sequence_no: 32
+    :caption: Application name
+    :namespaced_name: sql_logs.application_name
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  query_fingerprint:
+    :name: query_fingerprint
+    :sequence_no: 33
+    :caption: Query fingerprint
+    :namespaced_name: sql_logs.query_fingerprint
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  colour_rule:
+    :name: colour_rule
+    :sequence_no: 34
+    :caption: Colour rule
+    :namespaced_name: 
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+:query_parameter_definitions:
+- :column: sql_logs.process_id
+  :caption: Process
+  :data_type: :integer
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: sql_logs.query_fingerprint
+  :caption: Query fingerprint
+  :data_type: :string
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: sql_logs.regular_transaction_id
+  :caption: Transaction ID
+  :data_type: :integer
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 

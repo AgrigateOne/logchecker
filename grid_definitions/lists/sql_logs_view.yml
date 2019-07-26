@@ -1,0 +1,21 @@
+---
+:dataminer_definition: sql_logs
+:actions:
+- :url: "/logcheck/sql/sql_logs/$:id$"
+  :text: view
+  :icon: view-show
+  :title: View
+  :popup: true
+:conditions:
+  :fingerprint:
+    - :col: sql_logs.query_fingerprint
+      :op: =
+      :val: $:val$
+  :process:
+    - :col: sql_logs.process_id
+      :op: =
+      :val: $:val$
+  :transaction:
+    - :col: sql_logs.regular_transaction_id
+      :op: =
+      :val: $:val$
