@@ -1,0 +1,8 @@
+---
+:dataminer_definition: rails1_logs
+:actions:
+- :url: "/logcheck/rails1/rails1_logs/$:id$"
+  :text: view
+  :icon: view-show
+  :title: View
+  :popup: true

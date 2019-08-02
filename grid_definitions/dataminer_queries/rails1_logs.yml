@@ -1,0 +1,463 @@
+---
+:caption: Rails1 Logs
+:sql: SELECT "rails1_logs"."id", "rails1_logs"."approximate_time", "rails1_logs"."log_file",
+  "rails1_logs"."line_no", "rails1_logs"."duration_in_ms", "rails1_logs"."duration_in_secs",
+  "rails1_logs"."duration_in_minutes", "rails1_logs"."approximate_end_time", "rails1_logs"."render_time_ms",
+  "rails1_logs"."render_time_secs", "rails1_logs"."render_time_minutes", "rails1_logs"."render_percent",
+  "rails1_logs"."db_time_ms", "rails1_logs"."db_time_secs", "rails1_logs"."db_time_minutes",
+  "rails1_logs"."db_percent", "rails1_logs"."status", "rails1_logs"."host", "rails1_logs"."functional_area",
+  "rails1_logs"."controller", "rails1_logs"."action", "rails1_logs"."params", "rails1_logs"."queryparams",
+  "rails1_logs"."sessionid" FROM "rails1_logs"
+:limit: 
+:offset: 
+:external_settings: {}
+:columns:
+  id:
+    :name: id
+    :sequence_no: 1
+    :caption: Id
+    :namespaced_name: rails1_logs.id
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: true
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  approximate_time:
+    :name: approximate_time
+    :sequence_no: 2
+    :caption: Start time (apprx)
+    :namespaced_name: rails1_logs.approximate_time
+    :data_type: :datetime
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  log_file:
+    :name: log_file
+    :sequence_no: 3
+    :caption: Log file
+    :namespaced_name: rails1_logs.log_file
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  line_no:
+    :name: line_no
+    :sequence_no: 4
+    :caption: Line no
+    :namespaced_name: rails1_logs.line_no
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  duration_in_ms:
+    :name: duration_in_ms
+    :sequence_no: 5
+    :caption: Duration MS
+    :namespaced_name: rails1_logs.duration_in_ms
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  duration_in_secs:
+    :name: duration_in_secs
+    :sequence_no: 6
+    :caption: Duration Secs
+    :namespaced_name: rails1_logs.duration_in_secs
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  duration_in_minutes:
+    :name: duration_in_minutes
+    :sequence_no: 7
+    :caption: Duration Mins
+    :namespaced_name: rails1_logs.duration_in_minutes
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  approximate_end_time:
+    :name: approximate_end_time
+    :sequence_no: 8
+    :caption: End time (apprx)
+    :namespaced_name: rails1_logs.approximate_end_time
+    :data_type: :datetime
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  render_time_ms:
+    :name: render_time_ms
+    :sequence_no: 9
+    :caption: Render MS
+    :namespaced_name: rails1_logs.render_time_ms
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  render_time_secs:
+    :name: render_time_secs
+    :sequence_no: 10
+    :caption: Render Secs
+    :namespaced_name: rails1_logs.render_time_secs
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  render_time_minutes:
+    :name: render_time_minutes
+    :sequence_no: 11
+    :caption: Render Mins
+    :namespaced_name: rails1_logs.render_time_minutes
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  render_percent:
+    :name: render_percent
+    :sequence_no: 12
+    :caption: Render %
+    :namespaced_name: rails1_logs.render_percent
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  db_time_ms:
+    :name: db_time_ms
+    :sequence_no: 13
+    :caption: DB MS
+    :namespaced_name: rails1_logs.db_time_ms
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  db_time_secs:
+    :name: db_time_secs
+    :sequence_no: 14
+    :caption: DB Secs
+    :namespaced_name: rails1_logs.db_time_secs
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  db_time_minutes:
+    :name: db_time_minutes
+    :sequence_no: 15
+    :caption: DB Mins
+    :namespaced_name: rails1_logs.db_time_minutes
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: true
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  db_percent:
+    :name: db_percent
+    :sequence_no: 16
+    :caption: DB %
+    :namespaced_name: rails1_logs.db_percent
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  status:
+    :name: status
+    :sequence_no: 17
+    :caption: Status
+    :namespaced_name: rails1_logs.status
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  host:
+    :name: host
+    :sequence_no: 18
+    :caption: Host
+    :namespaced_name: rails1_logs.host
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  functional_area:
+    :name: functional_area
+    :sequence_no: 19
+    :caption: Functional area
+    :namespaced_name: rails1_logs.functional_area
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  controller:
+    :name: controller
+    :sequence_no: 20
+    :caption: Controller
+    :namespaced_name: rails1_logs.controller
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  action:
+    :name: action
+    :sequence_no: 21
+    :caption: Action
+    :namespaced_name: rails1_logs.action
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  params:
+    :name: params
+    :sequence_no: 22
+    :caption: Params
+    :namespaced_name: rails1_logs.params
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  queryparams:
+    :name: queryparams
+    :sequence_no: 23
+    :caption: Queryparams
+    :namespaced_name: rails1_logs.queryparams
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  sessionid:
+    :name: sessionid
+    :sequence_no: 24
+    :caption: Sessionid
+    :namespaced_name: rails1_logs.sessionid
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+:query_parameter_definitions:
+- :column: rails1_logs.action
+  :caption: Action
+  :data_type: :string
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: rails1_logs.approximate_end_time
+  :caption: End time
+  :data_type: :datetime
+  :control_type: :daterange
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: rails1_logs.approximate_time
+  :caption: Start time
+  :data_type: :datetime
+  :control_type: :daterange
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: rails1_logs.controller
+  :caption: Controller
+  :data_type: :string
+  :control_type: :list
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: SELECT DISTINCT controller FROM rails1_logs
+- :column: rails1_logs.functional_area
+  :caption: Functional area
+  :data_type: :string
+  :control_type: :list
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: SELECT DISTINCT functional_area FROM rails1_logs
+- :column: rails1_logs.sessionid
+  :caption: Session ID
+  :data_type: :string
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: rails1_logs.status
+  :caption: Request status
+  :data_type: :string
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: rails1_logs.duration_in_secs
+  :caption: Duration in seconds
+  :data_type: :number
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
