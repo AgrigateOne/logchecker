@@ -22,9 +22,11 @@ module LogcheckApp
 
     private
 
-    def process_log(filename) # rubocop:disable Metrics/AbcSize
+    def process_log(filename) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
       line_no = 0
       row = {}
+      param_action = nil
+      param_controller = nil
       File.foreach(filename) do |line| # rubocop:disable Metrics/BlockLength
         line_no += 1
 
@@ -35,6 +37,8 @@ module LogcheckApp
           procline = line
           time = procline.split(' at ').last.split(')').first
           row = { approximate_time: Time.parse(time) }
+          param_action = nil
+          param_controller = nil
           next
         end
         if line.include?('Session ID')
@@ -42,7 +46,12 @@ module LogcheckApp
           next
         end
         if line.include?('Parameters: ')
-          row[:params] = line.split('Parameters: ').last.chomp.strip # maybe form into hash & remove controller + action?
+          # row[:params] = line.split('Parameters: ').last.chomp.strip
+          params = line.split('Parameters: ').last.chomp.strip
+          hs = eval(params) # rubocop:disable Security/Eval
+          param_action = hs.delete('action')
+          param_controller = hs.delete('controller')
+          row[:params] = hs.to_s unless hs.empty?
           next
         end
         # Completed in 0.24022 (4 reqs/sec) | Rendering: 0.00163 (0%) | DB: 0.01822 (7%) | 200 OK [http://172.16.0.17/logistics/cumulative_stock/reprocess_edi_doc/?id=65281]
@@ -53,7 +62,7 @@ module LogcheckApp
         ar.unshift filename.gsub(%r{.*/}, '') # Remove path in front of logfile name.
         str_fields = ar.join(',').gsub('/', ',').split(',')
 
-        build_row(row, str_fields)
+        build_row(row, str_fields, param_action, param_controller)
         # ["0.24022", "0.00163 (0%)", "0.01822 (7%)", "200 OK", "172.16.0.17", "logistics", "cumulative_stock", "reprocess_edi_doc"]
         #
         row[:queryparams] = parts.join(',') unless parts.empty? # parameters
@@ -62,7 +71,7 @@ module LogcheckApp
       end
     end
 
-    def build_row(row, str_fields) # rubocop:disable Metrics/AbcSize
+    def build_row(row, str_fields, param_action, param_controller) # rubocop:disable Metrics/AbcSize
       row[:log_file] = str_fields[0]
       unless str_fields[1].empty?
         row[:duration_in_ms] = BigDecimal(str_fields[1])
@@ -92,8 +101,10 @@ module LogcheckApp
       row[:functional_area] = str_fields[6]
       row[:controller] = str_fields[7]
       row[:action] = str_fields[8]
-      row[:controller] = row[:params].split('"controller"=>"').last.split('"').first if row[:controller].nil?
-      row[:action] = row[:params].split('"action"=>"').last.split('"').first if row[:action].nil?
+      # row[:controller] = row[:params].split('"controller"=>"').last.split('"').first if row[:controller].nil?
+      # row[:action] = row[:params].split('"action"=>"').last.split('"').first if row[:action].nil?
+      row[:controller] = param_controller if row[:controller].nil?
+      row[:action] = param_action if row[:action].nil?
     end
 
     def dated_table_name

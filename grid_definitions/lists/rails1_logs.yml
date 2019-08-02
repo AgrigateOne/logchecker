@@ -6,3 +6,8 @@
   :icon: view-show
   :title: View
   :popup: true
+- :url: "/list/rails1_logs_view/with_params?key=sessionid&val=$:sessionid$"
+  :text: List all entries for this user session
+  :icon: play
+  :title: User session requests
+  :popup: true
