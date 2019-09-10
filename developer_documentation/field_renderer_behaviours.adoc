@@ -1,0 +1,236 @@
+= Behaviours
+:toc:
+
+link:/developer_documentation/start.adoc[Back to documentation home]
+
+== Behaviours
+
+Behaviours are used to bring dynamic changes to forms in the UI.
+e.g. To limit the options of one dropdown based on the current selection of another.
+
+The following behaviours can be specified for a field renderer:
+
+* <<Dropdown Change>>
+* <<Enable>>
+* <<Populate From Selected>>
+* <<Key Up>>
+* <<Lose Focus>>
+
+=== Add a behaviour
+
+In a UiRule, behaviours are added like this:
+[source,ruby]
+----
+behaviours do |behaviour|
+  behaviour.enable :other, when: :applet, changes_to: ['other']
+end
+----
+
+=== Dropdown Change
+
+Description:
+
+This behaviour attaches to a select field and triggers a call to a url when the selected value changes.
+
+NOTE: The format of this behaviour is identical to `lose_focus` and `keyup`.
+
+Format:
+
+`dropdown_change(field_to_observe, conditions = {})`
+
+`field_to_observe` is the name of the dropdown field to observe for changes.
+
+Conditions:
+
+* `notify:` Array of Hashes
++
+Notify Hash elements:
+* `url:` String - the url to call when the selected value changes.
+* `param_keys` [OPTIONAL] Array of Symbols - If matching an id in the form, the key+value will be sent as a parameter to the `url`. You can also define non-form keys which will use the matching value in `param_values`.
+* `param_values` [OPTIONAL] Hash - a key must match a Symbol in `param_keys`. The value in the Hash will be sent with the key as a parameter to the `url`.
++
+
+Example:
+
+[source,ruby]
+----
+behaviours do |behaviour|
+  # The typical case - one url notified of a change:
+  behaviour.dropdown_change :program_id, notify: [{ url: '/a/path/to/somewhere' }]
+
+  # Another possible case - two urls called and the second returns two extra parameters
+  # - one from the form and one defined in the UiRules file.
+  behaviour.dropdown_change :function_id, notify: [{ url: '/a/path/to/somewhere' },
+                                                   { url: '/a/path/to/somewhere/else',
+                                                     param_keys: %i[this_id users_user_login],
+                                                     param_values: { this_id: 123 }
+                                                   }]
+end
+----
+
+Each declared `url` will receive a param named `changed_value` which contains the newly selected value from the select.
+If the behaviour had any `param_keys` set, these will also be included in the params. Note that the `changed_value` can be empty
+if the user cleared the selection.
+
+Here is a simple example of a url route that updates a select's options when another select's selected item changes:
+_(Note that the if statement would normally be in an interactor - this example is just for illustration purposes.)_
+
+[source,ruby]
+----
+r.on 'select_change_for_pf' do
+  if params[:changed_value].empty?
+    sel = []
+  else
+    repo = SecurityApp::MenuRepo.new
+    sel = repo.for_select_program_functions(where: { program_id: params[:changed_value] })
+  end
+  json_replace_select_options('functional_area_program_function_id', sel)
+end
+----
+
+=== Enable
+
+Description:
+
+This behaviour attaches to a source field and enables/disables a target field(s) based on the value of the source field.
+
+Format:
+
+`enable(target_fields, conditions = {})`
+
+`target_fields` is the name of the field (or an Array of field names) to be enabled/disabled.
+
+Conditions:
+
+* `when:` Symbol
++
+The source field to observe.
+* `changes_to:` Array
++
+
+Example:
+
+[source,ruby]
+----
+behaviours do |behaviour|
+  behaviour.enable %i[more_info reason], when: :referred_by, changes_to: ['unknown', 'other']
+end
+----
+
+=== Populate From Selected
+
+Description:
+
+This behaviour attaches to a select element (typically a multi) and adds selected items to a sortable element.
+This allows a user to select items in one place and sequence them in another place.
+
+Format:
+
+`populate_from_selected(field_name, conditions = {})`
+
+`field_name` is the name of the select field to observe.
+
+Conditions:
+
+* `populate_from_selected:` Symbol
++
+An Array of Hashes. Each hash contains:
+* `sortable:` Symbol
++
+The DOM `id` of the sortable element in the page.
+
+Example:
+
+[source,ruby]
+----
+behaviours do |behaviour|
+  behaviour.populate_from_selected :variant_product_code_column_ids,
+                                   populate_from_selected: [
+                                     { sortable: 'variantcolumncodes-sortable-items' }
+                                   ]
+end
+----
+
+=== Key Up
+
+Description:
+
+This behaviour attaches to an input field and triggers a call to a url when the user has pressed a key.
+
+NOTE: The format of this behaviour is identical to `lose_focus` and `dropdown_change`.
+
+Format:
+
+`keyup(field_to_observe, conditions = {})`
+
+`field_to_observe` is the name of the input field to observe for key up presses.
+
+Conditions:
+
+* `notify:` Array of Hashes
++
+Notify Hash elements:
+* `url:` String - the url to call when the input value changes.
+* `param_keys` [OPTIONAL] Array of Symbols - If matching an id in the form, the key+value will be sent as a parameter to the `url`. You can also define non-form keys which will use the matching value in `param_values`.
+* `param_values` [OPTIONAL] Hash - a key must match a Symbol in `param_keys`. The value in the Hash will be sent with the key as a parameter to the `url`.
++
+
+Example:
+
+[source,ruby]
+----
+behaviours do |behaviour|
+  # The typical case - one url notified of a change:
+  behaviour.keyup :program_id, notify: [{ url: '/a/path/to/somewhere' }]
+
+  # See dropdown_change above for more examples
+end
+----
+
+Each declared `url` will receive a param named `changed_value` which contains the current value from the input.
+If the behaviour had any `param_keys` set, these will also be included in the params. Note that the `changed_value` can be empty
+if the user cleared the input contents.
+
+See example above for `dropdown_change` for reacting in a route.
+
+=== Lose Focus
+
+Description:
+
+This behaviour attaches to an input field and triggers a call to a url when the user focuses out of it (usually via a tab key or mouse click).
+
+NOTE: The format of this behaviour is identical to `key_up` and `dropdown_change`.
+
+Format:
+
+`lose_focus(field_to_observe, conditions = {})`
+
+`field_to_observe` is the name of the input field to observe for losing focus.
+
+Conditions:
+
+* `notify:` Array of Hashes
++
+Notify Hash elements:
+* `url:` String - the url to call when the input value changes.
+* `param_keys` [OPTIONAL] Array of Symbols - If matching an id in the form, the key+value will be sent as a parameter to the `url`. You can also define non-form keys which will use the matching value in `param_values`.
+* `param_values` [OPTIONAL] Hash - a key must match a Symbol in `param_keys`. The value in the Hash will be sent with the key as a parameter to the `url`.
++
+
+Example:
+
+[source,ruby]
+----
+behaviours do |behaviour|
+  # The typical case - one url notified of a change:
+  behaviour.lose_focus :program_id, notify: [{ url: '/a/path/to/somewhere' }]
+
+  # See dropdown_change above for more examples
+end
+----
+
+Each declared `url` will receive a param named `changed_value` which contains the current value from the input.
+If the behaviour had any `param_keys` set, these will also be included in the params. Note that the `changed_value` can be empty
+if the user cleared the input contents.
+
+See example above for `dropdown_change` for reacting in a route.

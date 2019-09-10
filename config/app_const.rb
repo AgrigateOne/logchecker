@@ -63,6 +63,7 @@ class AppConst
   # The key matches a key in BARCODE_PRINT_RULES. (e.g. :location)
   # The hash for that key is keyed by the value of the BARCODE_SCAN_RULES :field. (e.g. :id)
   # The rules for that field are: the table to read, the field to match the scanned value and the field to display in the form.
+  # If a join is required, specify join: table_name and on: Hash of field on source table: field on target table.
   BARCODE_LOOKUP_RULES = {
     location: {
       id: { table: :locations, field: :id, show_field: :location_long_code },
@@ -77,6 +78,7 @@ class AppConst
   ERROR_MAIL_RECIPIENTS = ENV.fetch('ERROR_MAIL_RECIPIENTS')
   ERROR_MAIL_PREFIX = ENV.fetch('ERROR_MAIL_PREFIX')
   SYSTEM_MAIL_SENDER = ENV.fetch('SYSTEM_MAIL_SENDER')
+  EMAIL_REQUIRES_REPLY_TO = ENV.fetch('EMAIL_REQUIRES_REPLY_TO', 'N') == 'Y'
   USER_EMAIL_GROUPS = [].freeze
 
   # Business Processes

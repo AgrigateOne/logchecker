@@ -1,0 +1,51 @@
+= Utility functions
+:toc:
+
+link:/developer_documentation/start.adoc[Back to documentation home]
+
+== Utility functions
+
+There are a few utility functions that are defined in the `UtilityFunctions` module that perform miscellaneous tasks.
+
+=== Date functions
+
+[source,ruby]
+----
+UtilityFunctions.weeks_ago(Date.today, 3)   # => Date - three weeks before Date.today.
+UtilityFunctions.weeks_ago(Time.now, 3)     # => Time
+UtilityFunctions.weeks_ago(DateTime.now, 3) # => DateTime
+UtilityFunctions.weeks_since(Date.today, 3) # => Date - three weeks after Date.today.
+
+UtilityFunctions.days_ago(Date.today, 3)    # => Date - three days before Date.today.
+UtilityFunctions.days_since(Date.today, 3)  # => Date - three days after Date.today.
+----
+
+=== Miscellaneous
+
+Get an ip address from a string that could be an ip address or could contain an ip address as part of a URI.
+[source,ruby]
+----
+UtilityFunctions.ip_from_uri('192.168.0.1')                # => '192.168.0.1'.
+UtilityFunctions.ip_from_uri('http://192.168.0.1:8080/')   # => '192.168.0.1'.
+----
+
+Deep merge two nested hashes. For matching keys, the value on the right overrides the one on the left. Extra keys from the right are added to the result.
+[source,ruby]
+----
+left  = { one: { two: { three: 3 }, four: 4 } }
+right = { one: { two: { three: 5 }, seven: 7 } }
+
+UtilityFunctions.merge_recursively(left, right)
+
+#=> { one: { two: { three: 5 }, four: 4, seven: 7 } }
+----
+
+Change keys of a nested hash from strings to symbols.
+[source,ruby]
+----
+example  = { "one" => { "two" => { "three" => 3 }, "four" => 4 } }
+
+UtilityFunctions.symbolize_keys(example)
+
+# => { one: { two: { three: 3 }, four: 4 } }
+----

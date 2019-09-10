@@ -1,0 +1,343 @@
+= Grids
+:toc:
+
+link:/developer_documentation/start.adoc[Back to documentation home]
+
+== Grids
+
+=== List filtered by url parameter
+
+To achieve this you add a `:conditions` section to your list yaml file. NB all `col` values must have a query parameter definition in the dataminer report as defined in `dataminer_queries`.
+
+This section can have more than one set of conditions as they can have separate keys. This allows you to use the same list file in different ways - see (3) below.
+
+==== 1. As a page
+
+Given a URL like this: `/list/order_items/with_params?key=standard&id=1` we will display a list of order items where the order id is `1`.
+
+To achieve this, the `order_items.yml` file would include the following:
+[source,yaml]
+----
+:conditions:
+  :standard:          # <1>
+    - :col: order_id  # <2>
+      :op: =          # <3>
+      :val: $:id$     # <4>
+----
+<1> This matches the value of the `key` parameter from the page url.
+<2> The column to be filtered. There can be more than one set of columns (repeated with a `-` as YAML array items).
+<3> The operator. This will usually be `=`, but can be another operator.
+<4> The parameter from the page url (in this case `id`) is wrapped in `$:` and `$`.
+
+This will become a WHERE clause like this: `WHERE order_id = 1`.
+
+==== 2. As a section of a page
+
+In this case you have a page with a form for header data and a grid for item data. As an example, we use order and order items - where `order_items` has an `order_id` column (belongs_to `id` on `orders`). And we use the same `order_items.yml` fila as above.
+
+[source,ruby]
+----
+layout = Crossbeams::Layout::Page.new form_object: obj
+layout.build do |page, page_config|
+  page.section do |section|
+    section.form do
+      # ...
+    end
+  end
+  page.section do |section|
+    section.add_grid('order_grid',
+                     '/list/order_items',     # <1>
+                     caption: 'Order Items',
+                     grid_params: params)     # <2>
+  end
+end
+----
+<1> The url contains the yaml file name (`order_items`).
+<2> Pass in the parameters which in this case should be `{ key: 'standard', id: 1 }`. These will match in the same way as set out above.
+
+==== 3. Several conditions in one list YAML file
+
+This example of `order_items.yml` list file will return different rows for the following two urls:
+
+* `/list/order_items/with_params?key=standard&id=1`
+* `/list/order_items/with_params?key=customer&id=5&active=false`
+
+[source,yaml]
+----
+:conditions:
+  :standard:          # <1>
+    - :col: order_id
+      :op: =
+      :val: $:id$
+  :customer:          # <2>
+    - :col: customer_id
+      :op: =
+      :val: $:id$
+    - :col: active
+      :op: =
+      :val: $:active$
+----
+<1> Key is `standard`, uses `WHERE order_id = 1`
+<2> Key is `customer`, uses `WHERE customer_id = 5 AND NOT active`
+
+=== Controls at the top of the page
+
+Links can be specified to appear at the top of the page. Typically they will be styled as buttons.
+
+This uses the same options as for link:/developer_documentation/non_field_renderers.adoc#_link[Link], but has the extra option `:hide_if_sql_returns_true` and `:hide_for_key`.
+
+The value of `:hide_if_sql_returns_true` **must** be a valid snippet of SQL that returns `true` or `false`. Typical is to return the result of an `EXISTS` query.
+
+The value of `:hide_for_key` **must** be an array of one or more strings. If any string matches the value of the `key=` parameter of the URL that loaded the page, the control will be hidden.
+
+This example will display an anchor (`<a>`) styled as a button that will render in a popup dialog when clicked.
+
+NOTE: The `grid_id` option will need to match the id of your grid if your action is going to call one of the helpers that add or update a grid's rows.
+
+[source,yaml]
+----
+- :control_type: :link
+  :url: "/masterfiles/locations/locations/new"
+  :text: New Location
+  :style: :button
+  :behaviour: :popup
+  :grid_id: something
+  :hide_if_sql_returns_true: SELECT EXISTS(SELECT id FROM locations)
+  :hide_for_key:
+    - inactive
+    - someotherkey
+----
+
+=== Calculated columns
+
+Columns can be specified to be calculated by the grid. This is especailly useful a column value is changed and any calculations that uses its value can adjust automatically.
+
+[source,yaml]
+----
+:calculated_columns:                            # <1>
+  - :name: total_price                          # <2>
+    :caption: Total price                       # <3>
+    :data_type: :number                         # <4>
+    :format: :delimited_1000                    # <5>
+    :expression: quantity_required * unit_price # <6>
+    :position: 9                                # <7>
+----
+<1> There can be any number of calculated columns in the array.
+<2> `name` must be unique amongst all columns of the grid.
+<3> `caption` - the column header.
+<4> `data_type` - usually `:numeric`. Can be `:integer`.
+<5> `format` is optional.
+<6> `expression` - this is the calculation - use a combination of column names and `*, /, + or -`.
+<7> `position` - the position to place the calculated column in the list of columns. Note that hidden columns also have position.
+
+=== Inline editing rules
+
+You can specify columns that can be edited inline in a list yaml file.
+
+Every time an editable cell is changed, a URL will be called with the row id, the name of the changed field and the cell's old and new values.
+
+[source,yaml]
+----
+:edit_rules:
+  :url: /path/to/$:id$/inline_save       # <1>
+  :editable_fields:                      # <2>
+    code:                                # <3>
+    description:
+      :editor: :textarea                 # <4>
+    amount:
+      :editor: :numeric                  # <5>
+    condition:
+      :editor: :select                   # <6>
+      :values:                           # <7>
+        - Ok
+        - Fair
+        - Poor
+    role:
+      :editor: :select
+      :value_sql: SELECT code FROM roles # <8>
+----
+<1> This is required. The url should include `$:id$` which will be replaced with the row's id value.
+<2> This is required. `editable_fields` is a Hash of column names with options for editing.
+<3> A column name key with no value will use the default text cell editor.
+<4> A textarea editor.
+<5> The numeric editor does not allow alphabetic characters.
+<6> A select editor **must** have a `values` or `value_sql` setting.
+<7> `values` is an array of values.
+<8> `value_sql` must be a SELECT query. The first column of every row forms the select's options.
+
+NOTE: The field name keys for `editable_fields` are Strings, not Symbols, so they do not get a `:` in front.
+
+The route action can use any JSON actions to update the page (maybe update other columns in the grid row), or just display a JSON notice. This will be a POST request with the following parameters:
+[source,ruby]
+----
+params[:column_name]  # => The name of the updated field.
+params[:column_value] # => The new value of the updated field.
+params[:old_value]    # => The value before it was updated in the grid.
+----
+
+Here's a contrived example:
+[source,ruby]
+----
+r.on 'inline_save' do # COLUMN EDITED IN GRID
+  check_auth!('a_program', 'edit')
+  res = do_some_interactor_stuff
+  if res.success
+    json_actions([OpenStruct.new(type: :update_grid_row,
+                                 ids: id,
+                                 changes: { log: "Changed at #{Time.now}" })],
+                 "Changed #{params[:column_name]},
+                  from \"#{params[:old_value]}\"
+                  to \"#{params[:column_value]}\".")
+    # OR - if there is no need to provide feedback:
+    blank_json_response
+  else
+    undo_grid_inline_edit(message: res.message, message_type: :warn)
+    # OR - if it does not matter that the grid still has the value the user entered:
+    show_json_error(res.message, status: 200)
+  end
+end
+----
+
+=== Display a tree
+
+A query can be displayed as a tree grid if each row returns an array column that contains the row's ancestors.
+Also the list or search yml must provide some config values like the following:
+
+[source,yaml]
+----
+:tree:
+  :tree_column: path_array           # <1>
+  :tree_caption: Location Hierarchy  # <2>
+  :suppress_node_counts: false       # <3>
+  :groupDefaultExpanded: 1           # <4>
+----
+<1> `path_array` in this instance is the resultset column that contains the ancestors of the current row in an ordered array. See SQL example below.
+<2> The caption of the grid column that shows the expandable tree hierarchy.
+<3> If `false`, each node in the grid will show the number of child nodes. Set to true to hide the counts.
+<4> How many levels in the hierarchy to expand on display. Default is `0`. Set to `-1` to expand all.
+
+==== Example SQL for a tree using the closure table method
+
+[source,sql]
+----
+SELECT "locations"."id", "locations"."location_long_code", "locations"."location_description",
+(SELECT array_agg("sub"."location_long_code") AS path
+  FROM (SELECT "loc"."location_long_code"
+          FROM "locations" loc
+          JOIN "tree_locations" tree ON "tree"."ancestor_location_id" = "loc"."id"
+          WHERE "tree"."descendant_location_id" = "locations"."id"
+          ORDER BY "tree"."path_length" DESC) sub) AS path_array,
+(SELECT max("path_length")
+  FROM "tree_locations"
+  WHERE "descendant_location_id" = "locations"."id") + 1 AS level
+FROM "locations"
+JOIN "location_types" ON "location_types"."id" = "locations"."location_type_id"
+JOIN "location_assignments" ON "location_assignments"."id" = "locations"."primary_assignment_id"
+JOIN "location_storage_types" ON "location_storage_types"."id" = "locations"."primary_storage_type_id"
+ORDER BY (SELECT string_agg("sub"."location_long_code", ';') AS path
+            FROM (SELECT "loc"."location_long_code"
+            FROM "locations" loc
+            JOIN "tree_locations" tree ON "tree"."ancestor_location_id" = "loc"."id"
+            WHERE "tree"."descendant_location_id" = "locations"."id"
+            ORDER BY "tree"."path_length" DESC) sub)
+----
+
+=== Simple row colouring
+
+The grid will automatically set the font colour of a row to grey and make it italic if the row has a column named `active` which has a value of `false`.
+
+The grid query can return a rule for colouring a row in a column named `colour_rule`. If there is a value in the column,
+the grid will apply it as a class (or classes) for the row. If it is nil, the row colour will remain at the default (black).
+This column should always be hidden.
+
+NOTE: There are five standard classes that should be used in most cases. They are `ok`, `warning`, `error`, `inactive` and `inprogress`. Only use other classes if these five do not cover your requirement.
+
+Because this column's value is applied as a class, it can be anything, not just colour - e.g. bold (`b`), italic (`em`).
+
+Your queries should preferably return Tachyons classes rather than custom classes (except for the background classes - Tachyons cannot be used here because the grid design means we have to apply `!important` to the class style).
+
+Try to exercise restraint - only colour rows if it will be useful to the user. Not every grid needs to be lit up like a christmas tree!
+
+NOTE: When saving a query via the admin section of a report or grid, if the query includes a column named `colour_rule`, there will be a grid (with inline-editable `description`) available to describe what each colour means. This key is available to the user when the grid is displayed. Make sure you change the default description from `No description`!
+
+Example:
+[source,sql]
+----
+SELECT
+CASE WHEN cancelled THEN 'b gray'  -- gray and bold Tachyon classes for cancelled
+     WHEN approved THEN 'ok'       -- green for approved
+     WHEN completed THEN 'warning' -- orange for complete but not yet approved
+     ELSE NULL                     -- default to no class
+     END AS colour_rule,           -- column must be named "colour_rule"
+*
+FROM invoices
+----
+
+Some useful Tachyons (and built-in) classes:
+
+|===
+|class |description
+
+|b
+|*Bold text*
+
+|i
+|_Italic text_
+
+|ttl
+|lowercase text
+
+|ttu
+|UPPERCASE text
+
+|error
+|pass:[<span class="red">Example text colour as if in a grid row</span>]
+
+|warning
+|pass:[<span class="orange">Example text colour as if in a grid row</span>]
+
+|ready
+|pass:[<span class="blue">Example text colour as if in a grid row</span>]
+
+|ok
+|pass:[<span class="green">Example text colour as if in a grid row</span>]
+
+|inactive
+|pass:[<span class="gray i">Example text colour as if in a grid row</span>]
+
+|inprogress
+|pass:[<span class="purple">Example text colour as if in a grid row</span>]
+
+|**NOTE** The following should be _rarely_ used:
+|**These classes are defined but should ideally not be used.**
+The background colours will override the grid's `hover` and `selected` row colouring -- makes UX confusing.
+
+|grid-row-bg-light-red
+|pass:[<span class="grid-row-bg-light-red">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-gold
+|pass:[<span class="grid-row-bg-gold">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-yellow
+|pass:[<span class="grid-row-bg-yellow">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-light-yellow
+|pass:[<span class="grid-row-bg-light-yellow">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-washed-yellow
+|pass:[<span class="grid-row-bg-washed-yellow">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-light-purple
+|pass:[<span class="grid-row-bg-light-purple">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-pink
+|pass:[<span class="grid-row-bg-pink">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-light-pink
+|pass:[<span class="grid-row-bg-light-pink">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-green
+|pass:[<span class="grid-row-bg-green">Example background colour as if in a grid row</span>]
+
+|grid-row-bg-light-green
+|pass:[<span class="grid-row-bg-light-green">Example background colour as if in a grid row</span>]

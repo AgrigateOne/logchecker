@@ -39,7 +39,7 @@
           <small class="nowrap f6 mt2 mt3-ns pr2 black-70 fw2">v<%= ENV['VERSION'] %></small>
         </div>
       </a>
-</div>
+    </div>
       <div id="notification-area">
         <% if current_user %>
           <input id="menuSearch" type="search" placeholder="Search menu" />
@@ -98,8 +98,7 @@
         <% end %>
     </footer>
 
-    <script src="/js/lodash.js"></script>
-    <script src="/js/ag-grid-enterprise.min.js?seq=1"></script>
+    <script src="/js/ag-grid-enterprise.min.js?seq=2"></script>
     <script src="/js/ag-enterprise-activation.js?seq=1"></script>
 
     <script src="/js/jackbox.min.js"></script>
@@ -108,6 +107,7 @@
     <script src="/js/jquery.contextMenu.min.js"></script>
     <script src="/js/sweetalert2.min.js"></script>
     <script src="/js/Sortable.min.js"></script>
+    <script src="/js/svg-inject.min.js"></script>
     <script src="/js/crossbeams-local-storage.js"></script>
     <script src="/js/crossbeams-utils.js?seq=11"></script>
     <script src="/js/crossbeams-layout.js?seq=10"></script>
@@ -117,6 +117,8 @@
     <script src="/js/choices.min.js"></script>
     <script src="/js/multi.min.js"></script>
     <script src="/js/a11y-dialog-cbeam.js"></script>
+    <script src="/js/message-bus.js"></script>
+    <script src="/js/message-bus-ajax.js"></script>
     <script>
       let crossbeamsDialogLevel1;
       let crossbeamsDialogLevel2;
@@ -143,6 +145,27 @@
         Jackbox.error('<%= flash[:error].tr("'", "`") %>', { time: 20 });
       <% end %>
 
+      // MessageBus handling --- START
+      MessageBus.baseUrl = "/terminus/";
+      const logged_in_user = '<%= current_user ? current_user.login_name : "unknown" %>';
+
+      MessageBus.subscribe("/terminus", function(msg){
+        console.log('MSG', msg);
+        if (msg.targetUser && msg.targetUser !== 'broadcast' && msg.targetUser !== logged_in_user) {
+          return;
+        }
+        switch (msg.messageType) {
+          case 'warning':
+            Jackbox.warning(msg.message);
+            return;
+          case 'error':
+            Jackbox.error(msg.message);
+            return;
+          default:
+            Jackbox.information(msg.message);
+        }
+      });
+      // MessageBus handling --- END
     </script>
     <script src="/js/crossbeams-menu-handler.js"></script>
     <%= content_for :late_javascript %>

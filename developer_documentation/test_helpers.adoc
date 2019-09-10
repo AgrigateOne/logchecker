@@ -1,0 +1,64 @@
+= Test helpers
+:toc:
+
+link:/developer_documentation/start.adoc[Back to documentation home]
+
+== Test helpers
+
+Helpers available during testing.
+
+Include the helpers in your test file with this line:
+[source,ruby]
+----
+require File.join(File.expand_path('../../../../test', __dir__), 'test_helper')
+----
+
+=== Current user
+
+Call `current user` in your test to get an instance of a `DevelopmentApp::User` entity.
+
+=== CRUD calls
+
+This helper for Repositories will check that the expected crud calls methods are in place. Your test file must implement a method named `repo` which returns an instance of the repository under test.
+
+Example:
+[source,ruby]
+----
+module MasterfilesApp
+  class TestCommodityRepo < MiniTestWithHooks
+    def test_crud_calls
+      test_crud_calls_for :commodity_groups, name: :commodity_group, wrapper: CommodityGroup
+      test_crud_calls_for :commodities, name: :commodity, wrapper: Commodity
+    end
+
+    private
+
+    def repo
+      CommodityRepo.new
+    end
+  end
+end
+----
+
+=== Change in table row count
+
+The `assert_count_changed` method allows you to wrap an insert or delete in a block that checks for an expected change in row count.
+
+Pass in the table name as a symbol and the number by which you expect the row count to increase or decrease. (e.g. `-1` for a delete and `2` for two inserts).
+
+Example:
+[source,ruby]
+----
+def test_delete_commodity_group
+  id = create_commodity_group
+  assert_count_changed(:commodity_groups, -1) do
+    res = interactor.delete_commodity_group(id)
+    assert res.success, res.message
+  end
+end
+
+# Failure produces an error like:
+# => "Expected count for commodity_groups to change from 3 to 2 but count is now 3"
+----
+
+NOTE: You should only use this method in a test that inherits from `MiniTestWithHooks` so that database inserts and updates are rolled back.

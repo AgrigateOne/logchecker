@@ -305,17 +305,18 @@ module DevelopmentApp
         @column_names.include?(:approved)
       end
 
-      def dependency_tree
+      def dependency_tree(lkp_tables = [])
         out = {}
         out[@table] = []
         columns.each do |col, attrs|
           next if attrs[:primary_key]
 
           hs = { name: col }.merge(attrs)
-          if fk_lookup[col]
+          if fk_lookup[col] && !lkp_tables.include?(fk_lookup[col][:table])
+            lkp_tables << fk_lookup[col][:table]
             hs[:ftbl] = fk_lookup[col][:table]
             this_meta = TableMeta.new(fk_lookup[col][:table])
-            out = out.merge(this_meta.dependency_tree)
+            out = out.merge(this_meta.dependency_tree(lkp_tables))
           end
           out[@table] << hs
         end
@@ -1365,7 +1366,7 @@ module DevelopmentApp
       def show_lkp(lkps)
         return '' if lkps.empty?
 
-        "#{lkps.join("\n          ")}\n\n      "
+        "#{lkps.join("\n      ")}\n\n      "
       end
 
       def render_field(field)
@@ -2043,12 +2044,15 @@ module DevelopmentApp
 
       def call
         <<~SQL
+          -- FUNCTIONAL AREA #{titleize(opts.applet)}
           INSERT INTO functional_areas (functional_area_name) VALUES ('#{titleize(opts.applet)}');
 
+          -- PROGRAM: #{titleize(opts.program_text)}
           INSERT INTO programs (program_name, program_sequence, functional_area_id)
           VALUES ('#{titleize(opts.program_text)}', 1, (SELECT id FROM functional_areas
                                                         WHERE functional_area_name = '#{titleize(opts.applet)}'));
 
+          -- LINK program to webapp
           INSERT INTO programs_webapps(program_id, webapp) VALUES (
                 (SELECT id FROM programs
                  WHERE program_name = '#{titleize(opts.program_text)}'
@@ -2057,6 +2061,7 @@ module DevelopmentApp
                  '#{opts.classnames[:roda_class]}');
 
           -- NEW menu item
+          -- PROGRAM FUNCTION New #{opts.classnames[:class]}
           #{opts.new_from_menu ? '' : '/*'}
           INSERT INTO program_functions (program_id, program_function_name, url, program_function_sequence)
           VALUES ((SELECT id FROM programs WHERE program_name = '#{titleize(opts.program_text)}'
@@ -2066,6 +2071,7 @@ module DevelopmentApp
           #{opts.new_from_menu ? '' : '*/'}
 
           -- LIST menu item
+          -- PROGRAM FUNCTION #{opts.table.capitalize}
           INSERT INTO program_functions (program_id, program_function_name, url, program_function_sequence)
           VALUES ((SELECT id FROM programs WHERE program_name = '#{titleize(opts.program_text)}'
                    AND functional_area_id = (SELECT id FROM functional_areas
@@ -2073,6 +2079,7 @@ module DevelopmentApp
                    '#{opts.table.capitalize}', '/list/#{opts.table}', 2);
 
           -- SEARCH menu item
+          -- PROGRAM FUNCTION Search #{opts.table.capitalize}
           /*
           INSERT INTO program_functions (program_id, program_function_name, url, program_function_sequence)
           VALUES ((SELECT id FROM programs WHERE program_name = '#{titleize(opts.program_text)}'

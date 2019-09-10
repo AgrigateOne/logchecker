@@ -1,0 +1,186 @@
+= How to do DRY Validation
+:toc:
+
+link:/developer_documentation/start.adoc[Back to documentation home]
+
+== DRY Validation resources
+
+See the link:http://dry-rb.org/gems/dry-validation/[dry-validation] documentation.
+
+This page gives a simple overview of usage - mainly as a reminder of typical use.
+
+== Schemas
+
+Create one or more schemas in a file (typically in `lib/applet_name/validations`.
+In most cases we want to inherit from `Dry::Validation.Params` rather than `Dry::Validation.Schema` because it is more flexible about its inputs.
+
+An example showing some simple variations:
+
+[source,ruby]
+----
+NewThingSchema = Dry::Validation.Params do
+  configure { config.type_specs = true }
+
+  optional(:id, :integer).filled(:int?)
+  required(:join_id, :integer).filled(:int?)
+  required(:code, Types::StrippedString).filled(:str?)
+  required(:name, Types::StrippedString).maybe(:str?)
+  required(:active, :bool).filled(:bool?)
+  required(:multiselected_ids, Types::IntArray).filled { each(:int?) }
+end
+
+----
+
+=== Special types
+
+* `Types::StrippedString` will remove leading and trailing spaces from a string before validation. Non-strings pass through and blank strings become `nil`.
+* `Types::IntArray` will convert string elements in an array to integers. Blank strings become `nil` and non-strings or strings that cannot coerce to integers pass through so the dry-validation schema can handle them as raw inputs.
+
+== Calling a schema
+
+Here is an example of a passing call followed by a failing call. Note how the inputs are coerced into their desired output types.
+
+[source,ruby]
+----
+> res = NewThingSchema.call(join_id: '1', code: 'AA', name: nil, active: 't', multiselected_ids: ['1', '2'])
+=> #<Dry::Validation::Result output={:join_id=>1, :code=>"AA", :name=>nil, :active=>true, :multiselected_ids=>[1, 2]} errors={}>
+> res[:active]
+=> true                               # <1>
+> res[:active].class
+=> TrueClass
+> res[:multiselected_ids]
+=> [1, 2]                             # <2>
+> res = NewThingSchema.call(join_id: 'XXX', code: 'AA', name: nil, active: 't', multiselected_ids: [])
+=> #<Dry::Validation::Result output={:join_id=>"XXX", :code=>"AA", :name=>nil, :active=>true, :multiselected_ids=>[]} errors={:join_id=>["must be an integer"], :multiselected_ids=>["must be filled"]}>
+> res.errors                          # <3>
+=> {:join_id=>["must be an integer"], :multiselected_ids=>["must be filled"]}
+> res = NewThingSchema.call(join_id: '2', code: 'AA', name: nil, active: 't', multiselected_ids: ['1', 'www'])
+=> #<Dry::Validation::Result output={:join_id=>2, :code=>"AA", :name=>nil, :active=>true, :multiselected_ids=>[1, "www"]} errors={:multiselected_ids=>{1=>["must be an integer"]}}>
+> res.errors                          # <4>
+=> {:multiselected_ids=>{1=>["must be an integer"]}}
+----
+<1> Note the `'t'` has become a Boolean with `true` value.
+<2> The Array input has had all its items coerced to Integers.
+<3> Errors are returned as a Hash keyed by the column name and the value is an array of one or more validation failure messages.
+<4> Errors can be for the array as a whole, or in this case for one of the elements. The key is the array index.
+
+== Rules
+
+This table provides a few example validation rules.
+
+Param required means that the parameter input to the schema call must include the column *key*.
+e.g. `{ col: nil }` If the param is not required, `{}` would be ok.
+
+Val required means that the *value* for that column key must be present.
+e.g. `{ col: 'some_value' }`
+
+|===
+|Param required |Val required |Type |Rule |Valid example
+
+|Y
+|Y
+|Integer
+|`required(:col, :integer).filled(:int?)`
+|`{col: '123'}`
+
+|Y
+|Y
+|String
+|`required(:col, Types::StrippedString).filled(:str?)`
+|`{col: 'abc'}`
+
+|Y
+|Y
+|Boolean
+|`required(:col, :bool).filled(:bool?)`
+|`{col: 't'}`
+
+|Y
+|N
+|Integer
+|`required(:col, :integer).maybe(:int?)`
+|`{col: nil}`
+
+|N
+|Y
+|Integer
+|`optional(:col, :integer).filled(:int?)`
+|`{}`
+
+|N
+|N
+|Integer
+|`optional(:col, :integer).maybe(:int?)`
+|`{}`
+
+|Y
+|Y (length > 0)
+|Array of Integer
+|`required(:col, Types::IntArray).filled { each(:int?) }`
+|`{col: ['1','2']}`
+
+|Y
+|Y (can be empty)
+|Array of Integer
+|`required(:col, Types::IntArray) { each(:int?) }`
+|`{col: []}`
+
+|Y
+|N (length > 0)
+|Array of Integer
+|`required(:col, Types::IntArray).maybe(min_size?: 1) { each(:int?) }`
+|`{col: nil}`
+
+|Y
+|N (elements if present must be ints)
+|Array of Integer
+|`required(:col, Types::IntArray).maybe { each(:int?) }`
+|`{col: nil}`
+
+|===
+
+== Base validation errors
+
+Sometimes you need to add a validation error message to a form, not a specific field.
+There are three helper methods that can be used to achieve this:
+
+1. `add_base_validation_errors(messages, base_messages)`
+2. `add_base_validation_errors_with_highlights(messages, base_messages, fields)`
+3. `move_validation_errors_to_base(messages, keys, highlights: {})`
+
+The first displays one or more error messages on a form:
+
+[source,ruby]
+----
+  res.errors = add_base_validation_errors(res.errors,
+                             'Wrong time of month for this action')
+
+  res.errors = add_base_validation_errors(res.errors,
+                             ['Wrong time of month for this action', 'Your clock is fast'])
+----
+
+The second behaves exactly the same as the first, but you can also highlight one or more fields in the form:
+
+[source,ruby]
+----
+  res.errors = add_base_validation_errors_with_highlights(res.errors,
+                             'This date and time combination is not allowed',
+                             [:date, :time])
+
+  res.errors = add_base_validation_errors_with_highlights(res.errors,
+                             'Too much time has elapsed', :time)
+----
+
+The third takes messages that are already in the result and moves them to `:base`. You can optionally also highlight fields.
+
+[source,ruby]
+----
+  res.errors = move_validation_errors_to_base(res.errors, :field1)
+  # { field1: ['Not OK'] } will become { base: ['Not OK'] }
+
+  res.errors = move_validation_errors_to_base(res.errors,
+                             [:field1, :field2],
+                             highlights: { field1: [:customer, :supplier] })
+  # Messages for :field1 and :field2 will become base messages.
+  # The customer and supplier fields will be highlighted.
+----
