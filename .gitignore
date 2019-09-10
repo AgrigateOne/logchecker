@@ -10,8 +10,10 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+/uploaded_logs/
 *.backup
 *.old
+.rakeTasks
 .sass-cache/
 lib/applets/.sass-cache/
 public/assets/*.*

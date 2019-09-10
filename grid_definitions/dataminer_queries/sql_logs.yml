@@ -17,7 +17,11 @@
   \"sql_logs\".\"time_stamp\", \"sql_logs\".\"id\""
 :limit: 
 :offset: 
-:external_settings: {}
+:external_settings:
+  :colour_key:
+    red: Blocked by transaction
+    green: Has transaction Id
+    orange: Longer than a minute
 :columns:
   id:
     :name: id
