@@ -28,6 +28,8 @@ DB.extension :pg_json
 Sequel.extension(:pg_json_ops)
 DB.extension :pg_hstore
 DB.extension :pg_inet
+Sequel.application_timezone = :local
+Sequel.database_timezone = :utc
 
 Que.connection = DB
 Que.job_middleware.push(
@@ -41,3 +43,11 @@ Que.job_middleware.push(
 )
 
 MessageBus.configure(backend: :postgres, backend_options: db_name)
+MessageBus.configure(on_middleware_error: proc do |_env, e|
+  # env contains the Rack environment at the time of error
+  # e contains the exception that was raised
+  raise e unless e.is_a?(Errno::EPIPE)
+
+  # Swallow and ignore the broken pipe error for MessageBus
+  [422, {}, ['']]
+end)

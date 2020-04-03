@@ -1,0 +1,429 @@
+---
+:caption: Nginx logs
+:sql: "SELECT\r\n  nginx_logs.id,\r\n  nginx_logs.time_local,\r\n  nginx_logs.request_time_in_secs,\r\n
+  \ nginx_logs.request_time_in_ms,\r\n  nginx_logs.request_time_in_minutes,\r\n  nginx_logs.base_url,\r\n
+  \ nginx_logs.params,\r\n  nginx_logs.url_fingerprint,\r\n  nginx_logs.func_area,\r\n
+  \ nginx_logs.prog_area,\r\n  nginx_logs.dm_key,\r\n  nginx_logs.device,\r\n  nginx_logs.remote_addr,\r\n
+  \ nginx_logs.status,\r\n  nginx_logs.bytes,\r\n  nginx_logs.method,\r\n  nginx_logs.mobile,\r\n
+  \ nginx_logs.java_robot,\r\n  nginx_logs.request,\r\n  nginx_logs.http_version,\r\n
+  \ nginx_logs.http_referer,\r\n  nginx_logs.http_user_agent,\r\n  nginx_logs.remote_user,\r\n
+  \ CASE WHEN nginx_logs.status = 500 THEN\r\n    'red'\r\n  WHEN nginx_logs.status::text
+  LIKE '4%' THEN\r\n    'orange'\r\n  WHEN nginx_logs.request_time_in_secs > 0.9 THEN\r\n
+  \   'purple'\r\n  ELSE\r\n    NULL\r\n  END AS colour_rule\r\nFROM\r\n  nginx_logs"
+:limit: 
+:offset: 
+:external_settings:
+  :colour_key:
+    red: HTTP 500 - System error
+    orange: HTT4xx - Not found/Not permitted etc.
+    purple: Time taken >= 1 second
+:columns:
+  id:
+    :name: id
+    :sequence_no: 1
+    :caption: Id
+    :namespaced_name: nginx_logs.id
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  time_local:
+    :name: time_local
+    :sequence_no: 2
+    :caption: Time local
+    :namespaced_name: nginx_logs.time_local
+    :data_type: :datetime
+    :width: 
+    :format: :datetime_with_secs
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  request_time_in_secs:
+    :name: request_time_in_secs
+    :sequence_no: 3
+    :caption: Secs
+    :namespaced_name: nginx_logs.request_time_in_secs
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  request_time_in_ms:
+    :name: request_time_in_ms
+    :sequence_no: 4
+    :caption: Msecs
+    :namespaced_name: nginx_logs.request_time_in_ms
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  request_time_in_minutes:
+    :name: request_time_in_minutes
+    :sequence_no: 5
+    :caption: Minutes
+    :namespaced_name: nginx_logs.request_time_in_minutes
+    :data_type: :number
+    :width: 
+    :format: :delimited_1000_4
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  base_url:
+    :name: base_url
+    :sequence_no: 6
+    :caption: Base url
+    :namespaced_name: nginx_logs.base_url
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  params:
+    :name: params
+    :sequence_no: 7
+    :caption: Params
+    :namespaced_name: nginx_logs.params
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  url_fingerprint:
+    :name: url_fingerprint
+    :sequence_no: 8
+    :caption: Url fingerprint
+    :namespaced_name: nginx_logs.url_fingerprint
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  func_area:
+    :name: func_area
+    :sequence_no: 9
+    :caption: Func area
+    :namespaced_name: nginx_logs.func_area
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  prog_area:
+    :name: prog_area
+    :sequence_no: 10
+    :caption: Prog area
+    :namespaced_name: nginx_logs.prog_area
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  dm_key:
+    :name: dm_key
+    :sequence_no: 11
+    :caption: Dm key
+    :namespaced_name: nginx_logs.dm_key
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  device:
+    :name: device
+    :sequence_no: 12
+    :caption: Device
+    :namespaced_name: nginx_logs.device
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  remote_addr:
+    :name: remote_addr
+    :sequence_no: 13
+    :caption: Remote addr
+    :namespaced_name: nginx_logs.remote_addr
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  status:
+    :name: status
+    :sequence_no: 14
+    :caption: Status
+    :namespaced_name: nginx_logs.status
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  bytes:
+    :name: bytes
+    :sequence_no: 15
+    :caption: Bytes
+    :namespaced_name: nginx_logs.bytes
+    :data_type: :integer
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  method:
+    :name: method
+    :sequence_no: 16
+    :caption: Method
+    :namespaced_name: nginx_logs.method
+    :data_type: :string
+    :width: 80
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  mobile:
+    :name: mobile
+    :sequence_no: 17
+    :caption: Mobile
+    :namespaced_name: nginx_logs.mobile
+    :data_type: :boolean
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  java_robot:
+    :name: java_robot
+    :sequence_no: 18
+    :caption: Java robot
+    :namespaced_name: nginx_logs.java_robot
+    :data_type: :boolean
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  request:
+    :name: request
+    :sequence_no: 19
+    :caption: Request
+    :namespaced_name: nginx_logs.request
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  http_version:
+    :name: http_version
+    :sequence_no: 20
+    :caption: Http version
+    :namespaced_name: nginx_logs.http_version
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  http_referer:
+    :name: http_referer
+    :sequence_no: 21
+    :caption: Http referer
+    :namespaced_name: nginx_logs.http_referer
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  http_user_agent:
+    :name: http_user_agent
+    :sequence_no: 22
+    :caption: Http user agent
+    :namespaced_name: nginx_logs.http_user_agent
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  remote_user:
+    :name: remote_user
+    :sequence_no: 23
+    :caption: Remote user
+    :namespaced_name: nginx_logs.remote_user
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: false
+    :pinned: 
+    :groupable: true
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+  colour_rule:
+    :name: colour_rule
+    :sequence_no: 24
+    :caption: Colour rule
+    :namespaced_name: 
+    :data_type: :string
+    :width: 
+    :format: 
+    :hide: true
+    :pinned: 
+    :groupable: false
+    :group_by_seq: 
+    :group_sum: false
+    :group_avg: false
+    :group_min: false
+    :group_max: false
+:query_parameter_definitions:
+- :column: nginx_logs.base_url
+  :caption: Base URL
+  :data_type: :string
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: nginx_logs.remote_addr
+  :caption: IP address
+  :data_type: :string
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 
+- :column: nginx_logs.request_time_in_secs
+  :caption: Request time in seconds
+  :data_type: :number
+  :control_type: :text
+  :default_value: 
+  :ordered_list: false
+  :ui_priority: 1
+  :list_def: 

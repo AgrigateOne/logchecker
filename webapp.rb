@@ -10,6 +10,7 @@ class LogCheck < Roda
   include ErrorHelpers
   include MenuHelpers
   include DataminerHelpers
+  include RmdHelpers
 
   use Rack::Session::Cookie, secret: 'some_other_nice_long_random_string_DSKJH4378EYR7EGKUFH', key: '_myapp_session'
   use Rack::MethodOverride # Use with all_verbs plugin to allow 'r.delete' etc.
@@ -33,8 +34,21 @@ class LogCheck < Roda
   plugin :content_for, append: true
   plugin :symbolized_params    # - automatically converts all keys of params to symbols.
   plugin :flash
-  plugin :csrf, raise: true, skip_if: ->(req) { ENV['RACK_ENV'] == 'test' || AppConst::BYPASS_LOGIN_ROUTES.any? { |path| req.path == path } } # , :skip => ['POST:/report_error'] # FIXME: Remove the +raise+ param when going live!
+  plugin :csrf, raise: true, # , :skip => ['POST:/report_error'] # FIXME: Remove the +raise+ param when going live!
+                csrf_header: 'X-CSRF-Token',
+                skip_if: ->(req) do # rubocop:disable Style/Lambda
+                  ENV['RACK_ENV'] == 'test' || AppConst::BYPASS_LOGIN_ROUTES.any? do |path|
+                    if path.end_with?('*')
+                      req.path.match?(/#{path}/)
+                    else
+                      req.path == path
+                    end
+                  end
+                end
   plugin :json_parser
+  plugin :message_bus
+  plugin :status_handler
+  plugin :cookies, path: '/'
   plugin :rodauth do
     db DB
     enable :login, :logout # , :change_password
@@ -47,6 +61,12 @@ class LogCheck < Roda
     accounts_table :vw_active_users # Only active users can login.
     account_password_hash_column :password_hash
     template_opts(layout_opts: { path: 'views/layout_auth.erb' })
+    after_login do
+      # On successful login, see if the user had given a specific path that required the login and redirect to it.
+      path = request.cookies['pre_login_path']
+      response.delete_cookie('pre_login_path')
+      redirect(path) if path && scope.can_login_to_path?(path, account[:id])
+    end
   end
   unless ENV['RACK_ENV'] == 'development' && ENV['NO_ERR_HANDLE']
     plugin :error_mail, to: AppConst::ERROR_MAIL_RECIPIENTS,
@@ -76,7 +96,7 @@ class LogCheck < Roda
     r.on 'webquery', String do |id|
       # A dummy user
       user = DevelopmentApp::User.new(id: 0, login_name: 'webquery', user_name: 'webquery', password_hash: 'dummy', email: nil, active: true)
-      interactor = DataminerApp::PreparedReportInteractor.new(user, {}, { route_url: request.path }, {})
+      interactor = DataminerApp::PreparedReportInteractor.new(user, {}, { route_url: request.path, request_ip: request.ip }, {})
       interactor.prepared_report_as_html(id)
     end
 
@@ -84,7 +104,7 @@ class LogCheck < Roda
     r.on 'xmlreport', String do |id|
       # A dummy user
       user = DevelopmentApp::User.new(id: 0, login_name: 'webquery', user_name: 'webquery', password_hash: 'dummy', email: nil, active: true)
-      interactor = DataminerApp::PreparedReportInteractor.new(user, {}, { route_url: request.path }, {})
+      interactor = DataminerApp::PreparedReportInteractor.new(user, {}, { route_url: request.path, request_ip: request.ip }, {})
       interactor.prepared_report_as_xml(id)
     end
     # Do the same as XML?
@@ -119,28 +139,27 @@ class LogCheck < Roda
       end
     end
 
-    # OVERRIDE RodAuth's Login form:
-    # r.get 'login' do
-    #   if @registered_mobile_device
-    #     @no_logout = true
-    #     view(:login, layout: 'layout_rmd')
-    #   else
-    #     view(:login)
-    #   end
-    # end
-
-    unless AppConst::BYPASS_LOGIN_ROUTES.any? { |path| request.path == path } # Might have to be more nuanced for params in path...
+    unless AppConst::BYPASS_LOGIN_ROUTES.any? do |path|
+      if path.end_with?('*')
+        request.path.match?(/#{path}/)
+      else
+        request.path == path
+      end
+    end
       r.rodauth
+      # Store this path before login so we can redirect after login. NB. Only a GET request!
+      response.set_cookie('pre_login_path', r.fullpath) unless rodauth.logged_in? || r.path == '/login' || !request.get? || fetch?(r)
       rodauth.require_authentication
       r.redirect('/login') if current_user.nil? # Session might have the incorrect user_id
     end
 
     r.root do
       # TODO: Config this, and maybe set it up per user.
-      if @registered_mobile_device
+      if @registered_mobile_device && !@hybrid_device
         r.redirect @rmd_start_page || '/rmd/home'
       else
-        # r.redirect '/packhouse/portal'
+        page = user_homepage
+        r.redirect page unless page.nil?
         view(inline: '<p>Welcome<p>')
       end
     end
@@ -154,72 +173,15 @@ class LogCheck < Roda
         <% content_for :late_head do %>
           <link rel="stylesheet" href="/css/asciidoc.css">
         <% end %>
-        <div id="asciidoc-content">
-          #{Asciidoctor.convert(content, safe: :safe, attributes: { 'source-highlighter' => 'coderay', 'coderay-css' => 'style', 'imagesdir' => '/documentation_images' })}
-        </div>
+        #{render_asciidoc(content)}
       HTML
     end
 
     r.on 'search_developer_documentation' do
-      # Requires ag (Silver Searcher) to be installed..
-      out = {}
-      if params[:search_term].strip.empty?
-        term = ''
-      else
-        term = params[:search_term]
-
-        Dir.glob("#{ENV['ROOT']}/developer_documentation/*.adoc").each do |filename|
-          lines = File.foreach(filename).grep(/#{term}/i)
-          next if lines.empty?
-
-          out[filename] = []
-          lines.each do |line|
-            out[filename] << (line.chomp || '').gsub('<', '&lt;').gsub('>', '&gt;').gsub(/(#{term})/i, '<span class="red b bg-light-yellow">\1</span>')
-          end
-        end
-
-        # Unlike the method above, this method includes lines of context:
-        # res = `ag -C 2 --nonumber #{term} developer_documentation/`
-        # curr = nil
-        # res.split("\n").each do |t|
-        #   next if t.strip.empty?
-        #   if t == '--'
-        #     out[curr] << '<hr class="light-green mb0">' unless curr.nil?
-        #   else
-        #     fn, = t.split(':')
-        #     str = t.delete_prefix("#{fn}:")
-        #     if fn != curr
-        #       curr = fn
-        #       out[curr] = []
-        #     end
-        #     out[curr] << (str || '').gsub('<', '&lt;').gsub('>', '&gt;').gsub(/(#{term})/i, '<span class="red b bg-light-yellow">\1</span>')
-        #   end
-        # end
-      end
-      got_res = out.empty? ? 'No s' : 'S'
+      search = DocSearch.new(:devdoc)
+      content = search.search_for(params[:search_term])
       @documentation_page = true
-
-      view(inline: <<~HTML)
-        <div class="db f2 mt5">
-          #{got_res}earch results for "<b>#{term}</b>"
-        </div>
-        <p>
-          <a href="/developer_documentation/start.adoc">Back to documentation home</a>
-        </p>
-        <div class="db">
-          #{out.map do |k, v|
-            <<~STR
-              <div class=\"mt3 lh-copy\">
-                <a href=\"#{k.delete_prefix(ENV['ROOT'])}\" class=\"f3 link dim br2 ph3 pv2 dib white bg-dark-blue mb2\">
-                  #{Crossbeams::Layout::Icon.render(:back)} #{k.delete_prefix("#{ENV['ROOT']}/developer_documentation/").delete_suffix('.adoc').tr('_', ' ')}
-                </a>
-                <br>
-                #{v.join('<br>')}
-            STR
-          end.join('<hr class="blue"></div>')}
-          <hr class="blue"></div>
-        </div>
-      HTML
+      view(inline: content)
     end
 
     r.on 'yarddocthis', String do |file|
@@ -363,6 +325,11 @@ class LogCheck < Roda
       view(inline: '<div class="crossbeams-error-note"><strong>Error</strong><br>The requested resource was not found.</div>')
     end
 
+    r.on 'terminus' do
+      r.message_bus
+      # view(inline: 'Maybe we show all unattended messages for a user here')
+    end
+
     # - :url: "/list/users/multi?key=program_users&id=$:id$/"
 
     # In-page grids (no last grid_url)
@@ -376,6 +343,18 @@ class LogCheck < Roda
       # open users yml & apply user_id param
       #
     end
+  end
+
+  status_handler(404) do
+    view(inline: '<div class="crossbeams-error-note"><strong>Error</strong><br>The requested resource was not found.</div>')
+  end
+
+  def render_asciidoc(content, image_dir = '/documentation_images')
+    <<~HTML
+      <div id="asciidoc-content">
+        #{Asciidoctor.convert(content, safe: :safe, attributes: { 'source-highlighter' => 'coderay', 'coderay-css' => 'style', 'imagesdir' => image_dir })}
+      </div>
+    HTML
   end
 end
 # rubocop:enable Metrics/ClassLength

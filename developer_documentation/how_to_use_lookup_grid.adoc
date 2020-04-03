@@ -93,7 +93,7 @@ end
 
 === Lookup control in a form - rules
 
-1. Basic
+.1. Basic
 
 [source, ruby]
 ----
@@ -103,7 +103,7 @@ field_name: { renderer: :lookup,
 ----
 This will display a button in the form with caption 'Lookup Field Name' and the query referenced in `yaml_file_name.yml` will run without any parameters.
 
-2. Advanced
+.2. Advanced
 
 [source, ruby]
 ----
@@ -120,7 +120,7 @@ field_name: { renderer: :lookup,
 2. _Symbol_ or Array of _Symbols_: Param keys are DOM ids from the form (form_name_field_name). The values in these elements at the time the button is pressed will be available for filtering the query.
 3. _Hash_: Param values - the key/value combinations given will be available for filtering the query.
 4. _Symbol_ or Array of _Symbols_: Hidden fields (prefixed with the form name) will be added to the form and the route will be able to set their values.
-5. _Symbol_: A read-only field named `form_name_display_field` will be added to the form and the route will be able to set the value.
+5. _Symbol_: A read-only field named `form_name_display_field` will be added to the form and the route will be able to set the value. If the `form_object` or `form_values` has an entry for this field, its value will be displayed.
 
 This will display a button in the form with caption 'Press me!'.
 
@@ -148,6 +148,7 @@ Definition files are YAML files stored in `grid_definitions/lookups/`.
 3. URL to be called when the user has selected a row in the lookup grid. The URL can be formatted in two ways:
    * With no token ('/function/program/lookup_result') the id value of the chosen row will be added to the end: '/function/program/lookup_result/99'.
    * With token ('/function/program/$:id$/lookup_result') the id value will replace '$:id$': '/function/program/99/lookup_result'
+   * Note that for both these options, other parameters can be provided that will be filled from the selected row. e.g. `$:role_name$` will be replaced by the value of the `role_name` column in the selected row..
 4. Optional. The caption can be fixed or it can be a snippet of SQL to be run.
    * Fixed: just provide any string.
    * SQL: Must start with SELECT and include a parameter replacement ($:token$). e.g. `SELECT 'For ' || user_name FROM users WHERE id = %:user_id$`

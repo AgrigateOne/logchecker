@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/BlockLength
 class LogCheck < Roda
   route 'sql', 'logcheck' do |r|
     # SQL LOGS
@@ -17,60 +19,6 @@ class LogCheck < Roda
         interactor.assert_permission!(:edit, id)
         show_partial { Logcheck::Sql::SqlLog::Edit.call(id) }
       end
-
-      # r.on 'complete' do
-      #   r.get do
-      #     check_auth!('sql', 'edit')
-      #     interactor.assert_permission!(:complete, id)
-      #     show_partial { Logcheck::Sql::SqlLog::Complete.call(id) }
-      #   end
-
-      #   r.post do
-      #     res = interactor.complete_a_sql_log(id, params[:sql_log])
-      #     if res.success
-      #       flash[:notice] = res.message
-      #       redirect_to_last_grid(r)
-      #     else
-      #       re_show_form(r, res) { Logcheck::Sql::SqlLog::Complete.call(id, params[:sql_log], res.errors) }
-      #     end
-      #   end
-      # end
-
-      # r.on 'approve' do
-      #   r.get do
-      #     check_auth!('sql', 'approve')
-      #     interactor.assert_permission!(:approve, id)
-      #     show_partial { Logcheck::Sql::SqlLog::Approve.call(id) }
-      #   end
-
-      #   r.post do
-      #     res = interactor.approve_or_reject_a_sql_log(id, params[:sql_log])
-      #     if res.success
-      #       flash[:notice] = res.message
-      #       redirect_to_last_grid(r)
-      #     else
-      #       re_show_form(r, res) { Logcheck::Sql::SqlLog::Approve.call(id, params[:sql_log], res.errors) }
-      #     end
-      #   end
-      # end
-
-      # r.on 'reopen' do
-      #   r.get do
-      #     check_auth!('sql', 'edit')
-      #     interactor.assert_permission!(:reopen, id)
-      #     show_partial { Logcheck::Sql::SqlLog::Reopen.call(id) }
-      #   end
-
-      #   r.post do
-      #     res = interactor.reopen_a_sql_log(id, params[:sql_log])
-      #     if res.success
-      #       flash[:notice] = res.message
-      #       redirect_to_last_grid(r)
-      #     else
-      #       re_show_form(r, res) { Logcheck::Sql::SqlLog::Reopen.call(id, params[:sql_log], res.errors) }
-      #     end
-      #   end
-      # end
 
       r.is do
         r.get do       # SHOW
@@ -193,3 +141,5 @@ class LogCheck < Roda
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
+# rubocop:enable Metrics/BlockLength

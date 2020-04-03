@@ -88,7 +88,43 @@ class BaseRepo # rubocop:disable Metrics/ClassLength
   # @param id [Integer] the id of the row.
   # @return [Hash, nil] the row as a Hash.
   def find_hash(table_name, id)
-    where_hash(table_name, id: id)
+    where_hash(table_name, id: id.to_s.empty? ? nil : id)
+  end
+
+  # Get a single value from a record matching on id
+  #
+  # @param table_name [Symbol] the db table name.
+  # @param id [Integer] the id of the row.
+  # @param column [Symbol] the column (or array of columns) to query.
+  # @return [any] the column value for the matching record or nil.
+  def get(table_name, id, column)
+    DB[table_name].where(id: id).get(column)
+  end
+
+  # Get a single value from a record given any WHERE clause
+  # NB: only the first record is returned - even when the WHERE clause
+  #     would return more than one row.
+  #
+  # @param table_name [Symbol] the db table name.
+  # @param column [Symbol] the column (or array of columns) to query.
+  # @param args [Hash] the where-clause conditions.
+  # @return [any] the column value for the matching record or nil.
+  def get_with_args(table_name, column, args)
+    DB[table_name].where(args).get(column)
+  end
+
+  # Get the id for a record in a table for a given WHERE clause.
+  # Raises an exception if more than one row is returned.
+  # Returns nil if no match is found.
+  #
+  # @param table_name [Symbol] the db table name.
+  # @param args [Hash] the where-clause conditions.
+  # @return [integer] the id value for the matching record or nil.
+  def get_id(table_name, args)
+    ids = DB[table_name].where(args).select_map(:id)
+    raise Crossbeams::FrameworkError, '"get_id" method must return only one record' if ids.length > 1
+
+    ids.first
   end
 
   # Find the first row in a table matching some condition.
@@ -220,8 +256,38 @@ class BaseRepo # rubocop:disable Metrics/ClassLength
   #
   # @param query [String] the SQL query to run.
   # @return [Array] the values from the first column of each row.
-  def select_values(query)
-    DB[query].select_map
+  # def select_values(query)
+  #   DB[query].select_map
+  # end
+
+  # Get an array of ordered values from a dataset.
+  # Optionally filtered by a WHERE clause.
+  #
+  # @param table_name [Symbol] the db table name.
+  # @param columns [Symbol,Array] the column (or array of columns) to query.
+  # @param where [Hash] the where-clause conditions. Optional.
+  # @param order [Symbol] the order by clause.
+  # @param descending [Boolean] return in decending order. Default is false.
+  # @return [Array] the values from the column(s) of each row.
+  def select_values_in_order(table_name, columns, where: nil, order:, descending: false)
+    ds = DB[table_name]
+    ds = ds.where(where) if where
+    ds = ds.order(order) if order && !descending
+    ds = ds.reverse(order) if order && descending
+    ds.select_map(columns)
+  end
+
+  # Get an array of values from a dataset.
+  # Optionally filtered by a WHERE clause.
+  #
+  # @param table_name [Symbol] the db table name.
+  # @param columns [Symbol,Array] the column (or array of columns) to query.
+  # @param args [Hash] the where-clause conditions. Optional.
+  # @return [Array] the values from the column(s) of each row.
+  def select_values(table_name, columns, args = nil)
+    ds = DB[table_name]
+    ds = ds.where(args) if args
+    ds.select_map(columns)
   end
 
   # Get a list of values from the +master_lists+ table for a particular +list_type+.
@@ -245,11 +311,39 @@ class BaseRepo # rubocop:disable Metrics/ClassLength
   # Helper to convert a Ruby Array into a value that postgresql will understand.
   #
   # @param arr [Array] the array to convert.
+  # @param array_type [Symbol] the type of array (:integer / :text). Default is :integer.
   # @return [Sequel::Postgres::PGArray] Postgres version of the Array.
-  def array_for_db_col(arr)
+  def array_for_db_col(arr, array_type: :integer)
     return nil if arr.nil?
 
-    Sequel.pg_array(arr)
+    Sequel.pg_array(arr, array_type)
+  end
+
+  # Helper to convert a Ruby Array into a value that postgresql will understand.
+  #
+  # @param arr [Array] the array to convert.
+  # @return [Sequel::Postgres::PGArray] Postgres version of the Array.
+  def array_of_text_for_db_col(arr)
+    array_for_db_col(arr, array_type: :text)
+  end
+
+  # Transform integer array values in a hash to pg_arrays.
+  # Any values not of type Array are returned unchanged.
+  #
+  # Note: this will not work unless all arrays are of the same type.
+  # - use :integer or :text.
+  #
+  # e.g. If input parameters include a collection of ids to be stored
+  # in an array column in the database, passing the params through
+  # this method will prepare the ids correctly for persisting.
+  #
+  # @param args [hash,Dry::Validation] the hash or Dry::Validation result.
+  # @param array_type [Symbol] the type of array (:integer / :text). Default is :integer.
+  # @return [hash] the transformed hash.
+  def prepare_array_values_for_db(args, array_type: :integer)
+    return nil if args.nil?
+
+    args.to_h.transform_values { |v| v.is_a?(Array) ? array_for_db_col(v, array_type: array_type) : v }
   end
 
   # Helper to convert rows of records to a Hash that can be used for optgroups in a select.
@@ -276,15 +370,17 @@ class BaseRepo # rubocop:disable Metrics/ClassLength
   # @param user_name [String] the current user's name.
   # @param context [String] more context about what led to the action.
   # @param route_url [String] the application route that led to the transaction.
-  def log_action(user_name: nil, context: nil, route_url: nil)
+  # @param request_ip [String] the ip address of the client browser.
+  def log_action(user_name: nil, context: nil, route_url: nil, request_ip: nil)
     DB[Sequel[:audit][:logged_action_details]].insert(user_name: user_name,
                                                       context: context,
-                                                      route_url: route_url)
+                                                      route_url: route_url,
+                                                      request_ip: request_ip)
   end
 
   # Log the status of a record.
   #
-  # @param table_name [String] the name of the table.
+  # @param table_name [Symbol, String] the name of the table.
   # @param id [Integer] the id of the record with the changed status.
   # @param status [String] the status to be logged.
   # @param comment [String] extra information about the status change.
@@ -315,7 +411,7 @@ class BaseRepo # rubocop:disable Metrics/ClassLength
 
   # Log the status of several records.
   #
-  # @param table_name [String] the name of the table.
+  # @param table_name [Symbol] the name of the table.
   # @param in_ids [Array/Integer] the ids of the records with the changed status.
   # @param status [String] the status to be logged.
   # @param comment [String] extra information about the status change.
@@ -361,6 +457,17 @@ class BaseRepo # rubocop:disable Metrics/ClassLength
     doc_seq = DocumentSequence.new(document_name)
     # check SQL from DS - is doc non-null????
     DB[doc_seq.next_sequence_update_sql(id)].update
+  end
+
+  # Get the next document sequence number.
+  #
+  # Gets DocumentSequence to return the SQL to run.
+  #
+  # @param document_name [string] the document name (key to document sequence hash)
+  # @return [integer] the new sequence value.
+  def next_document_sequence_number(document_name)
+    doc_seq = DocumentSequence.new(document_name)
+    DB[doc_seq.next_sequence_sql_as_seq].get(:seq)
   end
 
   # Run a query returning an array of column names and an array of data.
@@ -419,6 +526,21 @@ module MethodBuilder
   # - Set to true if this table does not have an +active+ column,
   #   or to return inactive records as well as active ones.
   def build_for_select(table_name, options = {}) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize
+    # POSSIBLE WAY OF DEFINING METHODS - faster?
+    # ds_ar = ["dataset = DB[:#{table_name}]"]
+    # ds_ar << "dataset = make_order(dataset, order_by: #{options[:order_by].inspect}#{', desc: true' if options[:desc]})" if options[:order_by]
+    # ds_ar << 'dataset = dataset.where(:active)' unless options[:no_active_check]
+    # ds_ar << 'dataset = dataset.where(opts[:where]) if opts[:where]'
+    # lbl = options[:label] || options[:value]
+    # val = options[:value]
+    # call_sel = lbl == val ? "select_single(dataset, :#{val})" : "select_two(dataset, #{lbl.inspect}, :#{val})"
+    #
+    # class_eval(<<~RUBY, __FILE__, __LINE__ + 1)
+    #   def for_select_#{options[:alias] || table_name}(opts = {})
+    #     #{ds_ar.join("\n")}
+    #     #{call_sel}
+    #   end
+    # RUBY
     define_method(:"for_select_#{options[:alias] || table_name}") do |opts = {}|
       dataset = DB[table_name]
       dataset = make_order(dataset, options) if options[:order_by]

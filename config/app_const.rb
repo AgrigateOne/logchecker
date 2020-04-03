@@ -2,9 +2,32 @@
 
 # A class for defining global constants in a central place.
 class AppConst
+  def self.development?
+    ENV['RACK_ENV'] == 'development'
+  end
+
+  # Any value that starts with y, Y, t or T is considered true.
+  # All else is false.
+  def self.check_true(val)
+    val.match?(/^[TtYy]/)
+  end
+
+  # Take an environment variable and interpret it
+  # as a boolean.
+  def self.make_boolean(key, required: false)
+    val = if required
+            ENV.fetch(key)
+          else
+            ENV.fetch(key, 'f')
+          end
+    check_true(val)
+  end
+
   # Client-specific code
   CLIENT_CODE = ENV.fetch('CLIENT_CODE')
   IMPLEMENTATION_OWNER = ENV.fetch('IMPLEMENTATION_OWNER')
+  SHOW_DB_NAME = ENV.fetch('DATABASE_URL').rpartition('@').last
+  URL_BASE = ENV.fetch('URL_BASE')
 
   # Constants for roles:
   ROLE_IMPLEMENTATION_OWNER = 'IMPLEMENTATION_OWNER'
@@ -78,7 +101,7 @@ class AppConst
   ERROR_MAIL_RECIPIENTS = ENV.fetch('ERROR_MAIL_RECIPIENTS')
   ERROR_MAIL_PREFIX = ENV.fetch('ERROR_MAIL_PREFIX')
   SYSTEM_MAIL_SENDER = ENV.fetch('SYSTEM_MAIL_SENDER')
-  EMAIL_REQUIRES_REPLY_TO = ENV.fetch('EMAIL_REQUIRES_REPLY_TO', 'N') == 'Y'
+  EMAIL_REQUIRES_REPLY_TO = make_boolean('EMAIL_REQUIRES_REPLY_TO')
   USER_EMAIL_GROUPS = [].freeze
 
   # Business Processes
@@ -93,4 +116,6 @@ class AppConst
   # ERP_PURCHASE_INVOICE_URI = ENV.fetch('ERP_PURCHASE_INVOICE_URI', 'default')
 
   BIG_ZERO = BigDecimal('0')
+  # The maximum size of an integer in PostgreSQL
+  MAX_DB_INT = 2_147_483_647
 end

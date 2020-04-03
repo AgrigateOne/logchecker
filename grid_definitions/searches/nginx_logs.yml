@@ -1,0 +1,24 @@
+---
+:dataminer_definition: nginx_logs
+:actions:
+- :url: "/logcheck/nginx/nginx_logs/$:id$"
+  :text: view
+  :icon: view-show
+  :title: View
+  :popup: true
+- :url: "/logcheck/nginx/nginx_logs/$:id$/edit"
+  :text: edit
+  :icon: edit
+  :title: Edit
+  :popup: true
+- :url: "/logcheck/nginx/nginx_logs/$:id$"
+  :text: delete
+  :icon: delete
+  :is_delete: true
+  :popup: true
+:page_controls:
+- :control_type: :link
+  :url: "/logcheck/nginx/nginx_logs/new"
+  :text: New Nginx Log
+  :style: :button
+  :behaviour: :popup

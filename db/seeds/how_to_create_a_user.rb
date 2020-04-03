@@ -8,5 +8,4 @@
 #       }
 # repo = DevelopmentApp::UserRepo.new
 # repo.create(:users, usr)
-# testing
 raise 'This is not for running!'

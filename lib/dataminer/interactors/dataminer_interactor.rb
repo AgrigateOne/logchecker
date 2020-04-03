@@ -129,7 +129,7 @@ module DataminerApp
       rpt_list = if for_grids
                    repo.list_all_grid_reports
                  else
-                   repo.list_all_reports
+                   repo.list_all_reports(true)
                  end
       col_defs = Crossbeams::DataGrid::ColumnDefiner.new.make_columns do |mk|
         mk.action_column do |act|
@@ -170,7 +170,7 @@ module DataminerApp
       NewReportSchema.call(params)
     end
 
-    def create_report(params) # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+    def create_report(params) # rubocop:disable Metrics/AbcSize
       res = validate_new_report_params(params)
       return validation_failed_response(res) unless res.messages.empty?
 
@@ -184,16 +184,12 @@ module DataminerApp
       repo = ReportRepo.new
 
       page.rpt = Crossbeams::Dataminer::Report.new(page.caption)
-      begin
-        page.rpt.sql = page.sql
-        colour_key = calculate_colour_key(page.rpt)
-        if colour_key.nil?
-          page.rpt.external_settings.delete(:colour_key)
-        else
-          page.rpt.external_settings[:colour_key] = colour_key
-        end
-      rescue StandardError => e
-        err = e.message
+      page.rpt.sql = page.sql
+      colour_key = calculate_colour_key(page.rpt)
+      if colour_key.nil?
+        page.rpt.external_settings.delete(:colour_key)
+      else
+        page.rpt.external_settings[:colour_key] = colour_key
       end
       # Check for existing file name...
       err = 'A file with this name already exists' if File.exist?(File.join(repo.admin_report_path(page.database), page.filename))
@@ -222,7 +218,9 @@ module DataminerApp
     end
 
     def edit_report(id) # rubocop:disable Metrics/AbcSize
-      page = OpenStruct.new(id: id, report: repo.lookup_report(id, true))
+      return failed_response('Cannot edit a system report') if unmodifiable_system_report(id)
+
+      page = OpenStruct.new(success: true, id: id, report: repo.lookup_report(id, true))
 
       page.filename = File.basename(repo.lookup_file_name(id, true))
 
@@ -232,33 +230,41 @@ module DataminerApp
         mk.col 'caption', nil, editable: true, pinned: 'left'
         mk.col 'namespaced_name'
         mk.col 'data_type', nil, editable: true, cellEditor: 'select', cellEditorParams: {
-          values: %w[string boolean integer number date datetime]
+          values: %w[string boolean integer number date datetime],
+          width: 100
         }
         mk.integer 'width', nil, editable: true # , cellEditor: 'numericCellEditor', cellEditorType: 'integer'
         mk.col 'format', nil, editable: true, cellEditor: 'select', cellEditorParams: {
-          values: ['', 'delimited_1000', 'delimited_1000_4']
+          values: ['', 'delimited_1000', 'delimited_1000_4', 'datetime_with_secs'],
+          width: 100
         }
         mk.boolean 'hide', 'Hide?', editable: true, cellEditor: 'select', cellEditorParams: {
-          values: [true, false]
+          values: %w[true false],
+          width: 60
         }
         mk.boolean 'groupable', 'Can group by?', editable: true, cellEditor: 'select', cellEditorParams: {
-          values: [true, false]
+          values: %w[true false],
+          width: 60
         }
         mk.col 'pinned', nil, editable: true, cellEditor: 'select', cellEditorParams: {
           values: ['', 'left', 'right']
         }
         mk.integer 'group_by_seq', 'Group Seq', tooltip: 'If the grid opens grouped, this is the grouping level', editable: true # , cellEditor: 'numericCellEditor'
         mk.boolean 'group_sum', 'Sum?', editable: true, cellEditor: 'select', cellEditorParams: {
-          values: [true, false]
+          values: %w[true false],
+          width: 60
         }
         mk.boolean 'group_avg', 'Avg?', editable: true, cellEditor: 'select', cellEditorParams: {
-          values: [true, false]
+          values: %w[true false],
+          width: 60
         }
         mk.boolean 'group_min', 'Min?', editable: true, cellEditor: 'select', cellEditorParams: {
-          values: [true, false]
+          values: %w[true false],
+          width: 60
         }
         mk.boolean 'group_max', 'Max?', editable: true, cellEditor: 'select', cellEditorParams: {
-          values: [true, false]
+          values: %w[true false],
+          width: 60
         }
       end
       page.row_defs = []
@@ -299,6 +305,8 @@ module DataminerApp
     end
 
     def delete_report(id)
+      return failed_response('Cannot delete a system report') if unmodifiable_system_report(id)
+
       filename = repo.lookup_file_name(id, true)
       File.delete(filename)
       success_response('Report has been deleted')
@@ -466,9 +474,9 @@ module DataminerApp
       crosstab_hash ||= {}
       # {"col"=>"users.department_id", "op"=>"=", "opText"=>"is", "val"=>"17", "text"=>"Finance", "caption"=>"Department"}
       input_parameters = ::JSON.parse(params[:json_var])
-      parms   = []
+      parms = []
       # Check if this should become an IN parmeter (list of equal checks for a column.
-      eq_sel  = input_parameters.select { |p| p['op'] == '=' }.group_by { |p| p['col'] }
+      eq_sel = input_parameters.select { |p| p['op'] == '=' }.group_by { |p| p['col'] }
       in_sets = {}
       in_keys = []
       eq_sel.each do |col, qp|
@@ -504,6 +512,13 @@ module DataminerApp
         # rescue StandardError => e
         #   return "ERROR: #{e.message}"
       end
+    end
+
+    private
+
+    def unmodifiable_system_report(id)
+      rpt_loc = ReportRepo::ReportLocation.new(id)
+      rpt_loc.db == 'system' && !AppConst.development?
     end
 
     # ------------------------------------------------------------------------------------------------------

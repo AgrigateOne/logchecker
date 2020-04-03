@@ -4,7 +4,7 @@
 
 class LogCheck < Roda # rubocop:disable Metrics/ClassLength
   route 'admin', 'dataminer' do |r|
-    context = { for_grid_queries: session[:dm_admin_path] == :grids, route_url: request.path }
+    context = { for_grid_queries: session[:dm_admin_path] == :grids, route_url: request.path, request_ip: request.ip }
     interactor = DataminerApp::DataminerInteractor.new(current_user, {}, context, {})
 
     r.is do
@@ -89,8 +89,13 @@ class LogCheck < Roda # rubocop:disable Metrics/ClassLength
       r.on 'edit' do
         r.is do
           @page = interactor.edit_report(id)
+          if @page.success
           store_locally(:dm_admin_page, @page)
           view('dataminer/admin/edit')
+          else
+            flash[:error] = @page.message
+            r.redirect '/dataminer/admin'
+          end
         end
 
         r.on 'colour_grid' do
@@ -205,7 +210,7 @@ class LogCheck < Roda # rubocop:disable Metrics/ClassLength
             update_grid_row(id, changes: res.instance, notice: res.message)
           end
         else
-          undo_grid_inline_edit(message: res.message, message_type: :warn)
+          undo_grid_inline_edit(message: res.message, message_type: :warning)
         end
       end
       r.on 'save_colour_key_desc' do # JSON
@@ -213,7 +218,7 @@ class LogCheck < Roda # rubocop:disable Metrics/ClassLength
         if res.success
           show_json_notice(res.message)
         else
-          undo_grid_inline_edit(message: res.message, message_type: :warn)
+          undo_grid_inline_edit(message: res.message, message_type: :warning)
         end
       end
       r.on 'parameter' do

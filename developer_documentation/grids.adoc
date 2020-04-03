@@ -33,7 +33,7 @@ This will become a WHERE clause like this: `WHERE order_id = 1`.
 
 ==== 2. As a section of a page
 
-In this case you have a page with a form for header data and a grid for item data. As an example, we use order and order items - where `order_items` has an `order_id` column (belongs_to `id` on `orders`). And we use the same `order_items.yml` fila as above.
+In this case you have a page with a form for header data and a grid for item data. As an example, we use order and order items - where `order_items` has an `order_id` column (belongs_to `id` on `orders`). And we use the same `order_items.yml` file as above.
 
 [source,ruby]
 ----
@@ -148,13 +148,14 @@ Every time an editable cell is changed, a URL will be called with the row id, th
       :editor: :numeric                  # <5>
     condition:
       :editor: :select                   # <6>
-      :values:                           # <7>
+      :width: 350                        # <7>
+      :values:                           # <8>
         - Ok
         - Fair
         - Poor
     role:
       :editor: :select
-      :value_sql: SELECT code FROM roles # <8>
+      :value_sql: SELECT code FROM roles # <9>
 ----
 <1> This is required. The url should include `$:id$` which will be replaced with the row's id value.
 <2> This is required. `editable_fields` is a Hash of column names with options for editing.
@@ -162,8 +163,9 @@ Every time an editable cell is changed, a URL will be called with the row id, th
 <4> A textarea editor.
 <5> The numeric editor does not allow alphabetic characters.
 <6> A select editor **must** have a `values` or `value_sql` setting.
-<7> `values` is an array of values.
-<8> `value_sql` must be a SELECT query. The first column of every row forms the select's options.
+<7> `width` is in pixels for setting the width of items. Optional -- the default value is 200.
+<8> `values` is an array of values.
+<9> `value_sql` must be a SELECT query. The first column of every row forms the select's options. The query can include parameters from the page (when the list url is a `with_params` type) in the form `$:param_name$`.
 
 NOTE: The field name keys for `editable_fields` are Strings, not Symbols, so they do not get a `:` in front.
 
@@ -191,7 +193,7 @@ r.on 'inline_save' do # COLUMN EDITED IN GRID
     # OR - if there is no need to provide feedback:
     blank_json_response
   else
-    undo_grid_inline_edit(message: res.message, message_type: :warn)
+    undo_grid_inline_edit(message: res.message, message_type: :warning)
     # OR - if it does not matter that the grid still has the value the user entered:
     show_json_error(res.message, status: 200)
   end
@@ -240,6 +242,29 @@ ORDER BY (SELECT string_agg("sub"."location_long_code", ';') AS path
             JOIN "tree_locations" tree ON "tree"."ancestor_location_id" = "loc"."id"
             WHERE "tree"."descendant_location_id" = "locations"."id"
             ORDER BY "tree"."path_length" DESC) sub)
+----
+
+=== Grid caption
+
+A `list.yml` file can contain one or more rules for setting the caption of a grid.
+
+Nothing provided:: The caption of the underlying dataminer report will be used.
+grid_caption:: A caption can be provided to be used when neither of the following applies.
+conditions:: Several captions can be provided for use when certain conditions are applied.
+multiselect:: The caption rules as provided within the `multiselect` section apply. See link:/developer_documentation/grid_actions.adoc[Grid actions].
+
+e.g.
+[source,yaml]
+----
+:captions:
+  :grid_caption: This overrides the report caption
+  :conditions:
+    :standard: This will be used for /with_params?key=standard
+    :inactive: This will be used for /with_params?key=inactive
+
+:multiselect:
+  :keyname:
+    :grid_caption: This will be used for /multi?key=keyname
 ----
 
 === Simple row colouring
@@ -341,3 +366,5 @@ The background colours will override the grid's `hover` and `selected` row colou
 
 |grid-row-bg-light-green
 |pass:[<span class="grid-row-bg-light-green">Example background colour as if in a grid row</span>]
+
+|===

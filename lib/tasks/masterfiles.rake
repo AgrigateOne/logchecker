@@ -11,6 +11,42 @@ namespace :app do
         puts "FAILURE: #{res.message}"
       end
     end
+
+    desc 'Import resources'
+    task :import_resources, %i[site mod_fn prn_fn] => [:load_app] do |_, args|
+      res = ProductionApp::ImportResources.call(args.site, args.mod_fn, args.prn_fn)
+      if res.success
+        puts "SUCCESS: #{res.message}"
+      else
+        puts "FAILURE: #{res.message}"
+      end
+    end
+
+    desc 'SQL Extract of Masterfiles'
+    task extract: [:load_app] do
+      # Todo - allow list of specific tables
+      extractor = SecurityApp::DataToSql.new(nil)
+      Crossbeams::Config::MF_BASE_TABLES.each do |table|
+        puts "-- #{table.to_s.upcase} --"
+        extractor.sql_for(table, nil)
+        puts ''
+      end
+
+      Crossbeams::Config::MF_TABLES_IN_SEQ.each do |table|
+        puts "-- #{table.to_s.upcase} --"
+        extractor.sql_for(table, nil)
+        puts ''
+      end
+    end
+
+    desc 'SQL Extract of single Masterfile'
+    task :extract_single, [:table] => [:load_app] do |_, args|
+      table = args.table
+      extractor = SecurityApp::DataToSql.new(nil)
+      puts "-- #{table.to_s.upcase} --"
+      extractor.sql_for(table.to_sym, nil)
+      puts ''
+    end
   end
 
   # Just trying something... TODO: get the rest of the params passed in

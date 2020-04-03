@@ -8,6 +8,7 @@ link:/developer_documentation/start.adoc[Back to documentation home]
 The following renderers that do not bind to fields in a form are available:
 
 * <<Link>>
+* <<HelpLink>>
 * <<Text>>
 * <<SortableList>>
 * <<Address>>
@@ -82,6 +83,36 @@ section.add_control(control_type: :link, text: 'Do something', url: '/path/to/so
 |Set this to `false` to render the link hidden (with style: `visiblity:hidden`).
 |`Boolean`
 |`true`
+
+|===
+
+=== HelpLink
+
+This page control displays a link in a page. See link:/developer_documentation/help_system.adoc[Help system]
+
+e.g.
+[source,ruby]
+----
+page.add_help_link path: %i[production allocate_setups]
+----
+
+|===
+|attribute |description |possible values |default
+
+|options - :path
+|The components of the path to a help file, starting from `help/app` or `help/system`. The `adoc` part is not required.
+|Array of symbols
+|None. must be provided.
+
+|options - :help_type
+|System or App help
+|String - can be "app" or "system"
+|`app`.
+
+|options - :for_dialog
+|Will the link be rendered in a dialog?
+|Boolean
+|`false`.
 
 |===
 
@@ -168,6 +199,16 @@ column.add_list([['FP', 1], ['MGP', 2], ['CONS', 3]])
 |The label text
 |any text
 |None.
+
+|options - :scroll_height
+|Restrict the list to a certain height and show scrollbars if the list is longer.
+|`:short` or `:medium`
+|None.
+
+|options - :filled_background
+|If true, draw a border and set the background to grey.
+|`true` or `false`
+|`false`
 
 |===
 
@@ -311,13 +352,17 @@ Render a table. The table renders with thin borders and highlights each row on h
 e.g.
 [source,ruby]
 ----
-neg_check = ->(a) { a && a.negative? ? 'red' : '' }
+neg_check = ->(a) { a&.negative? ? 'red' : '' }
 
 section.add_table [{ keys: 'a', values: 1, amounts: 22 },
                    { keys: 'b', values: 2, amounts: 33 }],
                    %i[keys values amounts],
                    alignment: { amounts: :right },
                    cell_classes: { amounts: neg_check },
+                   cell_transformers: {
+                     keys: ->(a) { a&.upcase },
+                     amounts: :decimal
+                   },
                    header_captions: { values: 'Value' }
 ----
 
@@ -344,6 +389,22 @@ Or a 2-dimensionial array (in which case there will be no columns or table head)
 |options - :cell_classes
 |A Hash of options
 |`cell_classes: { col: [callable] }`. The hash should only contain columns where you wish to apply logic to determine the css class. The value for each column must be something that responds to `call` - see example above using a lambda. NB. it is crucial to guard agains `nil` values for the column.
+|None.
+
+|options - :cell_transformers
+|A Hash of options that will transform the data in a particular column.
+a|`cell_transformers: { col: [callable/symbol] }`.
+
+The hash should only contain columns where you wish to change the cell value.
+
+Use symbols or a callable object - `:integer` to display a number without decimals, `:decimal` will show 2 decimals and `decimal_4` will show 4 decimals.
+
+Otherwise provide something like `cell_transformers: { a: ->(a) { "==#{a}==" }}` to change "1" to "==1==".
+|None.
+
+|options - :dom_id
+|String
+|If present, the table will be wrapped in a `<div>` with this id. This allows easy replacement of the table from behaviours.
 |None.
 
 |options - :caption
@@ -443,6 +504,11 @@ end
 |A file name.
 |`String`.
 |None.
+
+|no_padding
+|Remove surrounding padding in display.
+|Boolean - `true` or `false`.
+|`false`
 
 |===
 
@@ -580,6 +646,11 @@ page.add_notice('Some text', notice_type: :warning)
 |The caption to show in bold above the text.
 |`String`.
 |The notice_type, capitalised.
+
+|options - :inline_caption
+|The caption can be rendered on the same line as the notice. Default is to render above the text.
+|`true` or `false`.
+|`false`.
 
 |options - :show_caption
 |The caption can be hidden.

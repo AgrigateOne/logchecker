@@ -15,10 +15,11 @@ Crossbeams::Layout:: Used to create HTML docs - https://github.com/NoSoft-SA/cro
 Roda::DataGrid:: Used in defining and populating grids - https://github.com/NoSoft-SA/roda-data_grid[roda-data_grid]
 Crossbeams::Dataminer:: Used to define queries with parameters - https://github.com/NoSoft-SA/crossbeams-dataminer[dataminer]
 Crossbeams::LabelDesigner:: Design labels in the browser for printing - https://github.com/NoSoft-SA/crossbeams-label_designer[label_designer]
+Crossbeams::MenuMigrations:: Manage menu systems - https://github.com/NoSoft-SA/crossbeams-menu_migrations[menu_migrations]
 
 ==== External gems
 
-Roda:: Webapp route-handling - link:http://roda.jeremyevans.net/documentation.html[roda]
+Roda:: Webapp route-handling - link:http://roda.jeremyevans.net/documentation.html[roda]  and link:https://fiachetti.gitlab.io/mastering-roda[Mastering Roda]
 Rodauth:: Manage login, logout and current user - link:[rodauth]
 Sequel:: Database ORM - link:http://sequel.jeremyevans.net/documentation.html[sequel]
 Dry::Struct:: Define data entities - link:https://dry-rb.org/gems/dry-struct/[dry-struct]

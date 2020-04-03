@@ -1,0 +1,8 @@
+---
+:dataminer_definition: nginx_logs
+:actions:
+- :url: "/logcheck/nginx/nginx_logs/$:id$"
+  :text: view
+  :icon: view-show
+  :title: View
+  :popup: true

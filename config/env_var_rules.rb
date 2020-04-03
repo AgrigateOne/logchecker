@@ -32,7 +32,8 @@ class EnvVarRules # rubocop:disable Metrics/ClassLength
     { SYSTEM_MAIL_SENDER: 'Email address for "FROM" address in the format NAME<email>' },
     { ERROR_MAIL_PREFIX: 'Prefix to be placed in subject of emails sent from exceptions.' },
     { ERROR_MAIL_RECIPIENTS: 'Comma-separated list of recipients of exception emails.' },
-    { CLIENT_CODE: 'Short, lowercase code to identify the implementation client. Used e.g. in defining per-client behaviour.' }
+    { CLIENT_CODE: 'Short, lowercase code to identify the implementation client. Used e.g. in defining per-client behaviour.' },
+    { URL_BASE: 'Base URL for this website - in the format http://xxxx' }
   ].freeze
 
   def print
@@ -61,6 +62,10 @@ class EnvVarRules # rubocop:disable Metrics/ClassLength
       ==================================================================
       #{format(OPTIONAL)}
     STR
+  end
+
+  def list_keys # rubocop:disable Metrics/AbcSize
+    (NO_OVERRIDE.map { |a| a.keys.first } + CAN_OVERRIDE.map { |a| a.keys.first } + MUST_OVERRIDE.map { |a| a.keys.first } + OPTIONAL.map { |a| a.keys.first }).sort.join("\n")
   end
 
   def root_path

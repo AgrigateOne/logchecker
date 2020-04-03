@@ -19,6 +19,9 @@ lib/applets/.sass-cache/
 public/assets/*.*
 public/downloads/jasper/*.*
 public/js/ag-enterprise-activation.js
+public/tempfiles/*
+.rake_t_cache
+testjob.rb
 
 # Used by dotenv library to load environment variables.
 .env.local
@@ -37,6 +40,7 @@ public/js/ag-enterprise-activation.js
 ## Rubymine
 .idea/
 .rake_tasks~
+.rakeTasks
 
 ## Vim
 tags
@@ -49,4 +53,11 @@ prestyle.css
 # Client-specific config.
 config/mail_settings.rb
 config/dataminer_connections.yml
+config/edi_out_config.yml
+config/export_data_config.yml
 prepared_reports/*.yml
+pdf_documentation/*.pdf
+pdf_documentation/*.png
+/app_reports/
+/sys_prepared_reports/
+/app_prepared_reports/
