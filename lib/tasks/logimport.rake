@@ -6,11 +6,23 @@ require File.expand_path('../../app_loader.rb', __dir__)
 class LogImportTasks
   include Rake::DSL
 
-  def initialize
+  def initialize # rubocop:disable Metrics/AbcSize
     namespace :import_logs do
+      desc 'Import postgresql csv log files'
+      task :sql do
+        # Dir.chdir '/home/james/SilberbauerComputing/NoSoft/nspack/performance/2020-06-30' # from user
+        Dir.chdir '/home/james/SilberbauerComputing/NoSoft/nspack/performance/2020-07-30' # from user
+        files = Rake::FileList['**/*.csv']
+        files.exclude('~*')
+        puts files
+        LogcheckApp::ImportSqlLog.call(Date.today, files)
+      end
+
       desc 'Import nginx log files'
       task :nginx do
-        Dir.chdir '/home/james/SilberbauerComputing/NoSoft/nspack/performance/2020-03-31' # from user
+        # Dir.chdir '/home/james/SilberbauerComputing/NoSoft/nspack/performance/2020-03-31' # from user
+        # Dir.chdir '/home/james/SilberbauerComputing/NoSoft/nspack/performance/2020-06-30/nginx' # from user
+        Dir.chdir '/home/james/SilberbauerComputing/NoSoft/nspack/performance/2020-07-30/nginx' # from user
         # files = Rake::FileList['**/*.log', '**/*.log.*', '**/*.gz']
         files = Rake::FileList['**/*.log', '**/*.log.*']
         files.exclude('~*')

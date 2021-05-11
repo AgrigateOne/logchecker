@@ -308,7 +308,6 @@ class LogCheck < Roda
                                      :ag_grid,
                                      :choices,
                                      :sortable,
-                                     :lodash,
                                      :multi,
                                      :sweetalert)
       @layout = Crossbeams::Layout::Page.build do |page, _|
