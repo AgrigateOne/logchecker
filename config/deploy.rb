@@ -3,7 +3,7 @@
 set :chruby_ruby, 'ruby-2.5.5'
 
 set :application, 'logchecker'
-set :repo_url, 'git@github.com:NoSoft-SA/logchecker.git'
+set :repo_url, 'git@github.com:AgrigateOne/logchecker.git'
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp

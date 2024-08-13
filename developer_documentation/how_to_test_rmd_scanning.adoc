@@ -29,7 +29,7 @@ When the RMD form is displayed on the device, a button "Scan with camera" appear
 
 This option allows you to test "scanning" on a desktop/laptop.
 
-In a terminal, navigate to `websocket_scanner_mock` (link:https://github.com/NoSoft-SA/websocket_scanner_mock[github link]) and run `bin/run`.
+In a terminal, navigate to `websocket_scanner_mock` (link:https://github.com/AgrigateOne/websocket_scanner_mock[github link]) and run `bin/run`.
 This starts a websocket server.
 
 In another terminal, navigate to `websocket_scanner_mock` and run `bin/send` with whatever you want "scanned". e.g. `bin/send LC123` will send `LC123` to the browser page.

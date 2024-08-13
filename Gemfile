@@ -29,12 +29,12 @@ gem 'tilt'
 # gem 'tiny_tds' -- Required if dataminer has to run MSSqlServer reports.
 gem 'yard'
 
-gem 'crossbeams-dataminer', git: 'https://github.com/NoSoft-SA/crossbeams-dataminer.git'
-gem 'crossbeams-label_designer', git: 'https://github.com/NoSoft-SA/crossbeams-label_designer.git'
-gem 'crossbeams-layout', git: 'https://github.com/NoSoft-SA/crossbeams-layout.git'
-gem 'crossbeams-menu_migrations', git: 'https://github.com/NoSoft-SA/crossbeams-menu_migrations.git'
-gem 'crossbeams-rack_middleware', git: 'https://github.com/NoSoft-SA/crossbeams-rack_middleware.git'
-gem 'roda-data_grid', git: 'https://github.com/NoSoft-SA/roda-data_grid.git'
+gem 'crossbeams-dataminer', git: 'https://github.com/AgrigateOne/crossbeams-dataminer.git'
+gem 'crossbeams-label_designer', git: 'https://github.com/AgrigateOne/crossbeams-label_designer.git'
+gem 'crossbeams-layout', git: 'https://github.com/AgrigateOne/crossbeams-layout.git'
+gem 'crossbeams-menu_migrations', git: 'https://github.com/AgrigateOne/crossbeams-menu_migrations.git'
+gem 'crossbeams-rack_middleware', git: 'https://github.com/AgrigateOne/crossbeams-rack_middleware.git'
+gem 'roda-data_grid', git: 'https://github.com/AgrigateOne/roda-data_grid.git'
 
 # gem 'crossbeams-dataminer',           path: File.expand_path('../crossbeams-dataminer', __dir__)
 # gem 'crossbeams-label_designer',      path: File.expand_path('../crossbeams-label_designer', __dir__)

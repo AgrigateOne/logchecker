@@ -1,12 +1,12 @@
 GIT
-  remote: https://github.com/NoSoft-SA/crossbeams-dataminer.git
+  remote: https://github.com/AgrigateOne/crossbeams-dataminer.git
   revision: 9faad3957e198fa9b330820b2e4de3b159a93991
   specs:
     crossbeams-dataminer (0.2.0)
       pg_query (= 1.1.0)
 
 GIT
-  remote: https://github.com/NoSoft-SA/crossbeams-label_designer.git
+  remote: https://github.com/AgrigateOne/crossbeams-label_designer.git
   revision: f05332b22ff5b0afb89921f99c22ab954e30c974
   specs:
     crossbeams-label_designer (0.2.3)
@@ -15,7 +15,7 @@ GIT
       json
 
 GIT
-  remote: https://github.com/NoSoft-SA/crossbeams-layout.git
+  remote: https://github.com/AgrigateOne/crossbeams-layout.git
   revision: ff5787b1eafbfa92b65912111db9ebb733d5e0da
   specs:
     crossbeams-layout (0.4.2)
@@ -23,13 +23,13 @@ GIT
       rouge
 
 GIT
-  remote: https://github.com/NoSoft-SA/crossbeams-menu_migrations.git
+  remote: https://github.com/AgrigateOne/crossbeams-menu_migrations.git
   revision: 2f29c409728c5a661830b3902bd4c0ea79c99536
   specs:
     crossbeams-menu_migrations (0.1.1)
 
 GIT
-  remote: https://github.com/NoSoft-SA/crossbeams-rack_middleware.git
+  remote: https://github.com/AgrigateOne/crossbeams-rack_middleware.git
   revision: 94793ab9dd34bd27ff0abe817fada99ee5c1b53a
   specs:
     crossbeams-rack_middleware (0.1.1)
@@ -37,7 +37,7 @@ GIT
       rack
 
 GIT
-  remote: https://github.com/NoSoft-SA/roda-data_grid.git
+  remote: https://github.com/AgrigateOne/roda-data_grid.git
   revision: c04fe82efc75996cc58714da99c11c546c018cda
   specs:
     roda-data_grid (0.4.0)

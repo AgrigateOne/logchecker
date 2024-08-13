@@ -11,11 +11,11 @@ This project has some non-negotiable rules for development and some guidelines w
 
 ==== Crossbeams gems
 
-Crossbeams::Layout:: Used to create HTML docs - https://github.com/NoSoft-SA/crossbeams-layout[layout]
-Roda::DataGrid:: Used in defining and populating grids - https://github.com/NoSoft-SA/roda-data_grid[roda-data_grid]
-Crossbeams::Dataminer:: Used to define queries with parameters - https://github.com/NoSoft-SA/crossbeams-dataminer[dataminer]
-Crossbeams::LabelDesigner:: Design labels in the browser for printing - https://github.com/NoSoft-SA/crossbeams-label_designer[label_designer]
-Crossbeams::MenuMigrations:: Manage menu systems - https://github.com/NoSoft-SA/crossbeams-menu_migrations[menu_migrations]
+Crossbeams::Layout:: Used to create HTML docs - https://github.com/AgrigateOne/crossbeams-layout[layout]
+Roda::DataGrid:: Used in defining and populating grids - https://github.com/AgrigateOne/roda-data_grid[roda-data_grid]
+Crossbeams::Dataminer:: Used to define queries with parameters - https://github.com/AgrigateOne/crossbeams-dataminer[dataminer]
+Crossbeams::LabelDesigner:: Design labels in the browser for printing - https://github.com/AgrigateOne/crossbeams-label_designer[label_designer]
+Crossbeams::MenuMigrations:: Manage menu systems - https://github.com/AgrigateOne/crossbeams-menu_migrations[menu_migrations]
 
 ==== External gems
 
